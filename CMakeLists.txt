@@ -23,9 +23,25 @@ find_package(Qt5Core REQUIRED)
 
 set(SOURCES
     main.cpp
+
+    net.cpp
+    layer.cpp
+    solver.cpp
+    convolutional_layer.cpp
+    fully_connected_layer.cpp
+    image_data_layer.cpp
+    pooling_layer.cpp
 )
 set(HEADERS
     data2d.h
+
+    net.h
+    layer.h
+    solver.h
+    convolutional_layer.h
+    fully_connected_layer.h
+    image_data_layer.h
+    pooling_layer.h
 )
 
 add_executable(${project_name} ${SOURCES} ${HEADERS})
