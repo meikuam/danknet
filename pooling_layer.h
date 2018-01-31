@@ -3,16 +3,20 @@
 
 #include "layer.h"
 
+namespace danknet {
+
 template <typename Btype, typename Ttype>
 class PoolingLayer : public Layer<Btype, Ttype> {
  public:
   explicit PoolingLayer()
-      : Layer<Ftype, Btype>() {}
+      : Layer<Btype, Ttype>() {}
 
-    virtual void Forward(vector<Data2d*>& bottom, vector<Data2d*>& top);
-    virtual void Backward(vector<Data2d*>& top, vector<Data2d*>& bottom);
+    virtual inline layertype type() const {return Pooling; }
 
-    virtual void LayerSetUp(const vector<Blob*>& bottom, const vector<Blob*>& top);
+    virtual void Forward(const vector<Data2d<Btype>*>& bottom, const vector<Data2d<Ttype>*>& top);
+    virtual void Backward(const vector<Data2d<Btype>*>& top, const vector<Data2d<Ttype>*>& bottom);
+
+    virtual void LayerSetUp(const vector<Data2d<Btype>*>& bottom, const vector<Data2d<Ttype>*>& top);
 
 private:
     int kernel_h_, kernel_w_;
@@ -22,4 +26,5 @@ private:
     int height_, width_;
 };
 
+} // namespace danknet
 #endif // POOLING_LAYER_H

@@ -4,7 +4,7 @@
 #include <QImage>
 
 //------------------Data2d--------------------
-template<class Dtype>
+template<typename Dtype>
 class Data2d{
     int         w_,
                 h_,

@@ -20,6 +20,7 @@ include_directories(
 )
 
 find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
 
 set(SOURCES
     main.cpp
@@ -45,4 +46,4 @@ set(HEADERS
 )
 
 add_executable(${project_name} ${SOURCES} ${HEADERS})
-target_link_libraries(${project_name} Qt5::Core)
+target_link_libraries(${project_name} Qt5::Core Qt5::Gui)

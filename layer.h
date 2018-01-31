@@ -7,22 +7,39 @@
 #include "data2d.h"
 
 using namespace std;
-enum phase {
+
+
+namespace danknet {
+
+enum Phase {
     TRAIN,
     TEST
 };
 
-template <class Btype, class Ttype>
+enum layertype {
+    BaseType,
+    Convolutional,
+    Fully_Connected,
+    Image_Data,
+    Pooling
+};
+
+template <typename Btype, typename Ttype>
 class Layer {
 public:
     explicit Layer();
 
-    phase           phase_;
-    string          name_;
-    virtual void Forward(vector<Data2d*>& bottom, vector<Data2d*>& top);
-    virtual void Backward(vector<Data2d*>& top, vector<Data2d*>& bottom);
+    virtual ~Layer() {}
 
-    virtual void LayerSetUp(const vector<Blob*>& bottom, const vector<Blob*>& top);
+    Phase           phase_;
+    string          name_;
+
+    virtual inline layertype type() const {return BaseType; }
+    virtual void Forward(const vector<Data2d<Btype>*>& bottom, const vector<Data2d<Ttype>*>& top);
+    virtual void Backward(const vector<Data2d<Btype>*>& top, const vector<Data2d<Ttype>*>& bottom);
+
+    virtual void LayerSetUp(vector<Data2d<Btype>*>& bottom, vector<Data2d<Ttype>*>& top);
 };
 
+} // namespace danknet
 #endif // LAYER_H

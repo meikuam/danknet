@@ -3,13 +3,20 @@
 
 #include <vector>
 
+#include "layer.h"
+
 using namespace std;
+
+namespace danknet {
 
 class Net {
 private:
-    vector<Layer*>    layers_;
+//    vector<Layer*>    layers_;
 public:
     Net();
     ~Net();
 };
+
+} // namespace danknet
+
 #endif // NET_H
