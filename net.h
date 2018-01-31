@@ -30,6 +30,7 @@ public:
     explicit Net();
     virtual ~Net() {}
 
+    void AddLayer(Layer<Dtype>* layer);
     void Init();
     inline Phase phase() { return phase_; }
     inline string name() { return name_; }

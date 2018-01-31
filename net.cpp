@@ -10,7 +10,9 @@ Net<Dtype>::Net() {
 
 template<typename Dtype>
 const vector<Data2d<Dtype>*>& Net<Dtype>::Forward() {
-
+    for(int i = 0; i < layers_.size(); i++) {
+        layers_[i].Forward(bottom_data_[i], top_data_[i]);
+    }
 }
 
 template<typename Dtype>
@@ -28,4 +30,9 @@ void Net<Dtype>::WeightsToHDF5(string filename) {
 
 }
 
+template<typename Dtype>
+void Net<Dtype>::AddLayer(Layer<Dtype>* layer) {
+    //TODO: bottom_data_ / top_data_ creation
+    layers_.push_back(layer);
+}
 } // namespace danknet

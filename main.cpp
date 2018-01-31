@@ -16,8 +16,13 @@ bool fexists(const char *filename) {
 int main(int argc, char *argv[])
 {
     cout<<"start"<<endl;
-    Net<float> my_net();
+    Net<float> edge_detector();
+    edge_detector.AddLayer(new ImageDataLayer());
+    edge_detector.AddLayer(new ConvolutionalLayer());
+    edge_detector.AddLayer(new ConvolutionalLayer());
+    edge_detector.AddLayer(new FullyConectedLayer());
 
+    edge_detector.Forward();
 //    int             c;
 //    bool            im_load        = false,
 //            w_load         = false;
