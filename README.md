@@ -1,3 +1,7 @@
+#danknet
+
+Very dank neural network framework.
+
 # edge_detector
 
 A simple neural network that detects edges on images like the Sobel filter.
