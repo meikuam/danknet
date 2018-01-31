@@ -2,9 +2,8 @@
 
 namespace danknet {
 
-template<class Btype, class Ttype>
-Layer<Btype, Ttype>::Layer() {
-    phase_ = TRAIN;
+template<class Dtype>
+Layer<Dtype>::Layer() {
     name_ = "base_layer";
 }
 

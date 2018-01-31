@@ -4,17 +4,17 @@
 
 namespace danknet {
 
-template <typename Btype, typename Ttype>
-class ConvolutionalLayer : public Layer<Btype, Ttype> {
+template <typename Dtype>
+class ConvolutionalLayer : public Layer<Dtype> {
  public:
   explicit ConvolutionalLayer()
-      : Layer<Btype, Ttype>() {}
+      : Layer<Dtype>() {}
 
-    virtual inline layertype type() const {return Convolutional; }
-    virtual void Forward(const vector<Data2d<Btype>*>& bottom, const vector<Data2d<Ttype>*>& top);
-    virtual void Backward(const vector<Data2d<Btype>*>& top, const vector<Data2d<Ttype>*>& bottom);
+    virtual inline layertype type() const {return Convolutional_Layer; }
+    virtual void Forward(const vector<Data2d<Dtype>*>& bottom, const vector<Data2d<Dtype>*>& top);
+    virtual void Backward(const vector<Data2d<Dtype>*>& top, const vector<Data2d<Dtype>*>& bottom);
 
-    virtual void LayerSetUp(const vector<Data2d<Btype>*>& bottom, const vector<Data2d<Ttype>*>& top);
+    virtual void LayerSetUp(const vector<Data2d<Dtype>*>& bottom, const vector<Data2d<Dtype>*>& top);
 
 private:
     int kernel_h_, kernel_w_;

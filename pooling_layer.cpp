@@ -3,25 +3,25 @@
 
 namespace danknet {
 
-template<typename Btype, typename Ttype>
+template<typename Dtype>
 void
-PoolingLayer<Btype, Ttype>::LayerSetUp(const vector<Data2d<Btype>*>& bottom,
-                                       const vector<Data2d<Ttype>*>& top) {
+PoolingLayer<Dtype>::LayerSetUp(const vector<Data2d<Dtype>*>& bottom,
+                                const vector<Data2d<Dtype>*>& top) {
 
 }
 
 
-template<typename Btype, typename Ttype>
+template<typename Dtype>
 void
-PoolingLayer<Btype, Ttype>::Forward(const vector<Data2d<Btype>*>& bottom,
-                                    const vector<Data2d<Ttype>*>& top) {
+PoolingLayer<Dtype>::Forward(const vector<Data2d<Dtype>*>& bottom,
+                             const vector<Data2d<Dtype>*>& top) {
 
 }
 
-template<typename Btype, typename Ttype>
+template<typename Dtype>
 void
-PoolingLayer<Btype, Ttype>::Backward(const vector<Data2d<Btype>*>& bottom,
-                                     const vector<Data2d<Ttype>*>& top) {
+PoolingLayer<Dtype>::Backward(const vector<Data2d<Dtype>*>& bottom,
+                              const vector<Data2d<Dtype>*>& top) {
 
 }
 } // namespace danknet

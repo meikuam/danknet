@@ -11,34 +11,30 @@ using namespace std;
 
 namespace danknet {
 
-enum Phase {
-    TRAIN,
-    TEST
-};
 
 enum layertype {
     BaseType,
-    Convolutional,
-    Fully_Connected,
-    Image_Data,
-    Pooling
+    Convolutional_Layer,
+    Fully_Connected_Layer,
+    Image_Data_Layer,
+    Pooling_Layer,
+    Loss_Layer
 };
 
-template <typename Btype, typename Ttype>
+template <typename Dtype>
 class Layer {
 public:
     explicit Layer();
 
     virtual ~Layer() {}
 
-    Phase           phase_;
     string          name_;
 
     virtual inline layertype type() const {return BaseType; }
-    virtual void Forward(const vector<Data2d<Btype>*>& bottom, const vector<Data2d<Ttype>*>& top);
-    virtual void Backward(const vector<Data2d<Btype>*>& top, const vector<Data2d<Ttype>*>& bottom);
+    virtual void Forward(const vector<Data2d<Dtype>*>& bottom, const vector<Data2d<Dtype>*>& top);
+    virtual void Backward(const vector<Data2d<Dtype>*>& top, const vector<Data2d<Dtype>*>& bottom);
 
-    virtual void LayerSetUp(vector<Data2d<Btype>*>& bottom, vector<Data2d<Ttype>*>& top);
+    virtual void LayerSetUp(vector<Data2d<Dtype>*>& bottom, vector<Data2d<Dtype>*>& top);
 };
 
 } // namespace danknet

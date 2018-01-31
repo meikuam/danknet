@@ -32,6 +32,7 @@ set(SOURCES
     fully_connected_layer.cpp
     image_data_layer.cpp
     pooling_layer.cpp
+    loss_layer.cpp
 )
 set(HEADERS
     data2d.h
@@ -43,6 +44,7 @@ set(HEADERS
     fully_connected_layer.h
     image_data_layer.h
     pooling_layer.h
+    loss_layer.h
 )
 
 add_executable(${project_name} ${SOURCES} ${HEADERS})

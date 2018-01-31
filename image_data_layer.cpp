@@ -3,25 +3,25 @@
 
 namespace danknet {
 
-template<typename Btype, typename Ttype>
+template<typename Dtype>
 void
-ImageDataLayer<Btype, Ttype>::LayerSetUp(const vector<Data2d<Btype>*>& bottom,
-                                         const vector<Data2d<Ttype>*>& top) {
+ImageDataLayer<Dtype>::LayerSetUp(const vector<Data2d<Dtype>*>& bottom,
+                                  const vector<Data2d<Dtype>*>& top) {
 
 }
 
 
-template<typename Btype, typename Ttype>
+template<typename Dtype>
 void
-ImageDataLayer<Btype, Ttype>::Forward(const vector<Data2d<Btype>*>& bottom,
-                                      const vector<Data2d<Ttype>*>& top) {
+ImageDataLayer<Dtype>::Forward(const vector<Data2d<Dtype>*>& bottom,
+                               const vector<Data2d<Dtype>*>& top) {
 
 }
 
-template<typename Btype, typename Ttype>
+template<typename Dtype>
 void
-ImageDataLayer<Btype, Ttype>::Backward(const vector<Data2d<Btype>*>& bottom,
-                                       const vector<Data2d<Ttype>*>& top) {
+ImageDataLayer<Dtype>::Backward(const vector<Data2d<Dtype>*>& bottom,
+                                const vector<Data2d<Dtype>*>& top) {
 
 }
 } // namespace danknet
