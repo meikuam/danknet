@@ -20,13 +20,15 @@ enum Phase {
 template <typename Dtype>
 class Net {
 private:
-//    vector<Layer*>    layers_;
     Phase           phase_;
     string          name_;
     vector<Layer<Dtype>*> layers_;
+
+    vector<Data2d<Dtype>*> bottom_data_;
+    vector<Data2d<Dtype>*> top_data_;
 public:
     explicit Net();
-    ~Net();
+    virtual ~Net() {}
 
     void Init();
     inline Phase phase() { return phase_; }

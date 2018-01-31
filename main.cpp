@@ -2,8 +2,10 @@
 #include <unistd.h>
 #include <fstream>
 
-using namespace std;
+#include "danknet.h"
 
+using namespace std;
+using namespace danknet;
 
 bool fexists(const char *filename) {
   std::ifstream ifile(filename);
@@ -14,6 +16,8 @@ bool fexists(const char *filename) {
 int main(int argc, char *argv[])
 {
     cout<<"start"<<endl;
+    Net<float> my_net();
+
 //    int             c;
 //    bool            im_load        = false,
 //            w_load         = false;
@@ -97,6 +101,7 @@ int main(int argc, char *argv[])
 //        }
 //    }
        //---------------------------------------------------------------
+
 
 	return 0;
 }

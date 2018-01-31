@@ -35,6 +35,9 @@ public:
     virtual void Backward(const vector<Data2d<Dtype>*>& top, const vector<Data2d<Dtype>*>& bottom);
 
     virtual void LayerSetUp(vector<Data2d<Dtype>*>& bottom, vector<Data2d<Dtype>*>& top);
+private:
+    Data2d<Dtype> weights_;
+
 };
 
 } // namespace danknet

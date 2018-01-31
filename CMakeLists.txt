@@ -37,9 +37,13 @@ set(SOURCES
 set(HEADERS
     data2d.h
 
+    danknet.h
+
     net.h
     layer.h
     solver.h
+    params.h
+
     convolutional_layer.h
     fully_connected_layer.h
     image_data_layer.h
