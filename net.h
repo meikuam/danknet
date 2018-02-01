@@ -31,7 +31,7 @@ public:
     virtual ~Net() {}
 
     void AddLayer(Layer<Dtype>* layer);
-    void Init();
+//    void Init();
     inline Phase phase() { return phase_; }
     inline string name() { return name_; }
 

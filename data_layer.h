@@ -1,5 +1,5 @@
-#ifndef IMAGE_DATA_LAYER_H
-#define IMAGE_DATA_LAYER_H
+#ifndef DATA_LAYER_H
+#define DATA_LAYER_H
 #include "layer.h"
 
 
@@ -7,10 +7,10 @@ namespace danknet {
 
 
 template <typename Dtype>
-class ImageDataLayer : public Layer<Dtype> {
+class DataLayer : public Layer<Dtype> {
  public:
-  explicit ImageDataLayer()
-      : Layer<Dtype>() {}
+  explicit DataLayer(int width, int height, int depth, string name, vector<string> top, vector<string> bottom)
+      : Layer<Dtype>(name, top, bottom) {}
 
 
     virtual inline layertype type() const {return Image_Data_Layer; }
@@ -20,8 +20,9 @@ class ImageDataLayer : public Layer<Dtype> {
     virtual void LayerSetUp(const vector<Data2d<Dtype>*>& bottom, const vector<Data2d<Dtype>*>& top);
 
 private:
-
+    int width_, height_;
+    int depth_;
 };
 
 } // namespace danknet
-#endif // IMAGE_DATA_LAYER_H
+#endif // DATA_LAYER_H

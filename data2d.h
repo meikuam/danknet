@@ -2,6 +2,8 @@
 #define DATA2D_H
 
 #include <QImage>
+#include <string.h>
+using namespace std;
 
 //------------------Data2d--------------------
 template<typename Dtype>
@@ -11,10 +13,11 @@ class Data2d{
                 c_;
     bool        nulldata_ = true;
     Dtype*      data_;
+    string      name_;
 public:
     // constructor
     Data2d();
-    Data2d(int w, int h, int c);
+    Data2d(int w, int h, int c, string name = "");
     Data2d(QImage* img);
 
     // copy constructor
@@ -22,8 +25,12 @@ public:
     // assignment operator
     Data2d& operator = (const Data2d& data);
     Dtype* operator()(int x, int y, int c);
+    Dtype* data(int x, int y, int c);
 
     ~Data2d();
+    inline string name() {
+        return name_;
+    }
 
     inline bool        isNull() const {
         return nulldata_;
@@ -52,12 +59,13 @@ Data2d<Dtype>::Data2d() {
 
 
 template<class Dtype>
-Data2d<Dtype>::Data2d(int w, int h, int c) {
+Data2d<Dtype>::Data2d(int w, int h, int c, string name) {
     w_          = w;
     h_          = h;
     c_          = c;
     data_       = new Dtype[c_ * w_ * h_];
     nulldata_   = false;
+    name_       = name;
 
 }
 
@@ -88,6 +96,7 @@ Data2d<Dtype>::Data2d(const Data2d<Dtype> &data) {
     data_       = new Dtype[c_ * w_ * h_];
     memcpy(data_, data.data_, c_ * w_ * h_);
     nulldata_   = data.nulldata_;
+    name_       = data.name_;
 }
 
 //TODO: different data types are not supported
@@ -99,6 +108,7 @@ Data2d<Dtype>& Data2d<Dtype>::operator = (const Data2d<Dtype>& data) {
     c_          = data.c_;
     data_       = data.data_;
     nulldata_   = data.nulldata_;
+    name_       = data.name_;
 }
 
 
@@ -112,6 +122,12 @@ Dtype* Data2d<Dtype>::operator()(int x, int y, int c){
     // v  abc abc abc
     //
     //   abc - c_ elements
+    return &(data_[(y * w_ + x) * c_ + c]);
+}
+
+
+template<class Dtype>
+Dtype* Data2d<Dtype>::data(int x, int y, int c) {
     return &(data_[(y * w_ + x) * c_ + c]);
 }
 

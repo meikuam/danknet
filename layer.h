@@ -24,11 +24,10 @@ enum layertype {
 template <typename Dtype>
 class Layer {
 public:
-    explicit Layer();
+    explicit Layer(string name, vector<string> top, vector<string> bottom);
 
     virtual ~Layer() {}
 
-    string          name_;
 
     virtual inline layertype type() const {return BaseType; }
     virtual void Forward(const vector<Data2d<Dtype>*>& bottom, const vector<Data2d<Dtype>*>& top);
@@ -36,7 +35,11 @@ public:
 
     virtual void LayerSetUp(vector<Data2d<Dtype>*>& bottom, vector<Data2d<Dtype>*>& top);
 private:
-    Data2d<Dtype> weights_;
+    string          name_;
+    vector<string>  top_;
+    vector<string>  bottom_;
+
+    Data2d<Dtype>* weights_;
 
 };
 

@@ -30,7 +30,7 @@ set(SOURCES
     solver.cpp
     convolutional_layer.cpp
     fully_connected_layer.cpp
-    image_data_layer.cpp
+    data_layer.cpp
     pooling_layer.cpp
     loss_layer.cpp
 )
@@ -46,7 +46,7 @@ set(HEADERS
 
     convolutional_layer.h
     fully_connected_layer.h
-    image_data_layer.h
+    data_layer.h
     pooling_layer.h
     loss_layer.h
 )

@@ -4,7 +4,7 @@ namespace danknet {
 
 template<typename Dtype>
 Net<Dtype>::Net() {
-    Init();
+//    Init();
 }
 
 
