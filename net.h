@@ -16,6 +16,9 @@ enum Phase {
     TEST
 };
 
+/*
+ * Root layer has no bottom data. That data feeds to net via "load_batch()" method.
+ */
 
 template <typename Dtype>
 class Net {
@@ -31,7 +34,8 @@ public:
     virtual ~Net() {}
 
     void AddLayer(Layer<Dtype>* layer);
-//    void Init();
+    void Compile();
+
     inline Phase phase() { return phase_; }
     inline string name() { return name_; }
 

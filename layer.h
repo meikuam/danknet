@@ -16,7 +16,7 @@ enum layertype {
     BaseType,
     Convolutional_Layer,
     Fully_Connected_Layer,
-    Image_Data_Layer,
+    Data_Layer,
     Pooling_Layer,
     Loss_Layer
 };
@@ -24,7 +24,7 @@ enum layertype {
 template <typename Dtype>
 class Layer {
 public:
-    explicit Layer(string name, vector<string> top, vector<string> bottom);
+    explicit Layer(string name, vector<string> bottom, vector<string> top);
 
     virtual ~Layer() {}
 
@@ -34,6 +34,14 @@ public:
     virtual void Backward(const vector<Data2d<Dtype>*>& top, const vector<Data2d<Dtype>*>& bottom);
 
     virtual void LayerSetUp(vector<Data2d<Dtype>*>& bottom, vector<Data2d<Dtype>*>& top);
+
+    inline vector<string> get_bottom_names() {
+        return bottom_;
+    }
+    inline vector<string> get_top_names() {
+        return top_;
+    }
+
 private:
     string          name_;
     vector<string>  top_;

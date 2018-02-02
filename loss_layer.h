@@ -5,11 +5,14 @@
 
 namespace danknet {
 
+//Loss layer
+
 template <typename Dtype>
 class LossLayer : public Layer<Dtype> {
  public:
-  explicit LossLayer()
-      : Layer<Dtype>() {}
+  explicit LossLayer(string name,
+                     vector<string> bottom, vector<string> top)
+      : Layer<Dtype>(name, bottom, top) {}
 
     virtual inline layertype type() const {return Loss_Layer; }
 

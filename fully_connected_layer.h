@@ -5,11 +5,17 @@
 
 namespace danknet {
 
+//Fully connected layer (inner product layer)
+
 template <typename Dtype>
 class FullyConectedLayer : public Layer<Dtype> {
  public:
-  explicit FullyConectedLayer()
-      : Layer<Dtype>() {}
+  explicit FullyConectedLayer(int units,
+                              string name,
+                              vector<string> bottom, vector<string> top)
+      : Layer<Dtype>(name, bottom, top) {
+        units_ = units;
+    }
 
     virtual inline layertype type() const {return Fully_Connected_Layer; }
     virtual void Forward(const vector<Data2d<Dtype>*>& bottom, const vector<Data2d<Dtype>*>& top);
@@ -18,7 +24,7 @@ class FullyConectedLayer : public Layer<Dtype> {
     virtual void LayerSetUp(const vector<Data2d<Dtype>*>& bottom, const vector<Data2d<Dtype>*>& top);
 
 private:
-
+    int units_;
 };
 
 } // namespace danknet
