@@ -2,6 +2,8 @@
 #define NET_H
 
 #include <vector>
+#include <map>
+
 #include <string>
 
 #include "layer.h"
@@ -26,9 +28,14 @@ private:
     Phase           phase_;
     string          name_;
     vector<Layer<Dtype>*> layers_;
+    map<string, Blob<Dtype>*> blobs_;
 
-    vector<Data2d<Dtype>*> bottom_data_;
-    vector<Data2d<Dtype>*> top_data_;
+    // vector<Data3d<Dtype>*> bottom_data_;
+    // vector<Data3d<Dtype>*> top_data_;
+
+//    if(blobs_.find(l0) != blobs_.end()) {
+
+//    }
 public:
     explicit Net();
     virtual ~Net() {}
@@ -39,7 +46,7 @@ public:
     inline Phase phase() { return phase_; }
     inline string name() { return name_; }
 
-    const vector<Data2d<Dtype>*>& Forward();
+    void Forward(const vector<Data3d<Dtype>*>& bottom, const vector<Data3d<Dtype>*>& top);
     void Backward();
 
     void WeightsFromHDF5(string filename);

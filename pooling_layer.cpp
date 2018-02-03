@@ -2,26 +2,22 @@
 
 
 namespace danknet {
-
 template<typename Dtype>
 void
-PoolingLayer<Dtype>::LayerSetUp(const vector<Data2d<Dtype>*>& bottom,
-                                const vector<Data2d<Dtype>*>& top) {
+PoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top) {
 
 }
 
 
 template<typename Dtype>
 void
-PoolingLayer<Dtype>::Forward(const vector<Data2d<Dtype>*>& bottom,
-                             const vector<Data2d<Dtype>*>& top) {
+PoolingLayer<Dtype>::Forward(const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top) {
 
 }
 
 template<typename Dtype>
 void
-PoolingLayer<Dtype>::Backward(const vector<Data2d<Dtype>*>& bottom,
-                              const vector<Data2d<Dtype>*>& top) {
+PoolingLayer<Dtype>::Backward(const vector<Blob<Dtype>*>& top, const vector<Blob<Dtype>*>& bottom) {
 
 }
 } // namespace danknet

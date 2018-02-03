@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "data2d.h"
+#include "data.h"
 
 using namespace std;
 
@@ -30,10 +30,10 @@ public:
 
 
     virtual inline layertype type() const {return BaseType; }
-    virtual void Forward(const vector<Data2d<Dtype>*>& bottom, const vector<Data2d<Dtype>*>& top);
-    virtual void Backward(const vector<Data2d<Dtype>*>& top, const vector<Data2d<Dtype>*>& bottom);
+    virtual void Forward(const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top);
+    virtual void Backward(const vector<Blob<Dtype>*>& top, const vector<Blob<Dtype>*>& bottom);
 
-    virtual void LayerSetUp(vector<Data2d<Dtype>*>& bottom, vector<Data2d<Dtype>*>& top);
+    virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top);
 
     inline vector<string> get_bottom_names() {
         return bottom_;
@@ -41,13 +41,16 @@ public:
     inline vector<string> get_top_names() {
         return top_;
     }
+    inline vector<Data3d<Dtype>*>* get_weights(){
+        return &weights_;
+    }
 
 private:
     string          name_;
     vector<string>  top_;
     vector<string>  bottom_;
 
-    Data2d<Dtype>* weights_;
+    vector<Data3d<Dtype>*> weights_;
 
 };
 

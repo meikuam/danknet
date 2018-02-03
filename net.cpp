@@ -9,7 +9,7 @@ Net<Dtype>::Net() {
 
 
 template<typename Dtype>
-const vector<Data2d<Dtype>*>& Net<Dtype>::Forward() {
+void Net<Dtype>::Forward(const vector<Data3d<danknet::Dtype> *> &bottom, const vector<Data3d<danknet::Dtype> *> &top) {
     for(int i = 0; i < layers_.size(); i++) {
         layers_[i].Forward(bottom_data_[i], top_data_[i]);
     }

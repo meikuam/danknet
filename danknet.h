@@ -1,7 +1,7 @@
 #ifndef DANKNET_H
 #define DANKNET_H
 
-#include "data2d.h"
+#include "data.h"
 #include "layer.h"
 #include "convolutional_layer.h"
 #include "fully_connected_layer.h"

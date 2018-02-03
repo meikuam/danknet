@@ -35,7 +35,7 @@ set(SOURCES
     loss_layer.cpp
 )
 set(HEADERS
-    data2d.h
+    data.h
 
     danknet.h
 
