@@ -18,33 +18,51 @@ int main(int argc, char *argv[])
     cout<<"start"<<endl;
 
     Net<float> edge_detector;
-    vector<string> data0_bottom, data0_top;
-    vector<string> conv1_bottom, conv1_top;
-    vector<string> conv2_bottom, conv2_top;
-    vector<string> fc3_bottom, fc3_top;
-    vector<string> loss_bottom, loss_top;
 
-    data0_top.push_back("data0");
-    data0_top.push_back("label0");
 
-    conv1_bottom.push_back("data0");
-    conv1_top.push_back("conv1");
+    Blob<float> data("data", Shape(23, 23, 3));
+    Blob<float> label("label", Shape(1));
 
-    conv2_bottom.push_back("conv1");
-    conv2_top.push_back("conv2");
+    vector<Blob<float>*> conv0_bottom, conv0_top;
+    conv0_bottom.push_back(&data);
 
-    fc3_bottom.push_back("conv2");
-    fc3_top.push_back("fc3");
+    cout<<"AddLayer"<<endl;
+    edge_detector.AddLayer(new Layer<float>("conv0", conv0_bottom, conv0_top));
+    edge_detector.Forward();
 
-    loss_bottom.push_back("label0");
-    loss_bottom.push_back("fc3");
-    loss_top.push_back("loss");
+    cout<<conv0_top.size()<<" "<<conv0_top[0]->name()<<endl;
 
-    edge_detector.AddLayer(new DataLayer<float>(23, 23, 3, "data0", data0_bottom, data0_top));
-    edge_detector.AddLayer(new ConvolutionalLayer<float>(5, 5, 32, 3, 3, 0, 0, "conv1", conv1_bottom, conv1_top));
-    edge_detector.AddLayer(new ConvolutionalLayer<float>(3, 3, 256, 2, 2, 0, 0, "conv2", conv2_bottom, conv2_top));
-    edge_detector.AddLayer(new FullyConectedLayer<float>(1, "fc3", fc3_bottom, fc3_top));
-    edge_detector.AddLayer(new LossLayer<float>("loss", loss_bottom, loss_top));
+//    edge_detector->AddBlob(data);
+//    Net.addBlob(&label);
+
+
+//    vector<string> data0_bottom, data0_top;
+//    vector<string> conv1_bottom, conv1_top;
+//    vector<string> conv2_bottom, conv2_top;
+//    vector<string> fc3_bottom, fc3_top;
+//    vector<string> loss_bottom, loss_top;
+
+//    data0_top.push_back("data0");
+//    data0_top.push_back("label0");
+
+//    conv1_bottom.push_back("data0");
+//    conv1_top.push_back("conv1");
+
+//    conv2_bottom.push_back("conv1");
+//    conv2_top.push_back("conv2");
+
+//    fc3_bottom.push_back("conv2");
+//    fc3_top.push_back("fc3");
+
+//    loss_bottom.push_back("label0");
+//    loss_bottom.push_back("fc3");
+//    loss_top.push_back("loss");
+
+//    edge_detector.AddLayer(new DataLayer<float>(23, 23, 3, "data0", data0_bottom, data0_top));
+//    edge_detector.AddLayer(new ConvolutionalLayer<float>(5, 5, 32, 3, 3, 0, 0, "conv1", conv1_bottom, conv1_top));
+//    edge_detector.AddLayer(new ConvolutionalLayer<float>(3, 3, 256, 2, 2, 0, 0, "conv2", conv2_bottom, conv2_top));
+//    edge_detector.AddLayer(new FullyConectedLayer<float>(1, "fc3", fc3_bottom, fc3_top));
+//    edge_detector.AddLayer(new LossLayer<float>("loss", loss_bottom, loss_top));
 
 //    edge_detector.Forward();
 //    int             c;

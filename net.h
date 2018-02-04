@@ -7,6 +7,7 @@
 #include <string>
 
 #include "layer.h"
+#include "common.h"
 
 using namespace std;
 
@@ -41,12 +42,14 @@ public:
     virtual ~Net() {}
 
     void AddLayer(Layer<Dtype>* layer);
+    void AddBlob(Blob<Dtype>& blob);
+
     void Compile();
 
     inline Phase phase() { return phase_; }
     inline string name() { return name_; }
 
-    void Forward(const vector<Data3d<Dtype>*>& bottom, const vector<Data3d<Dtype>*>& top);
+    void Forward();
     void Backward();
 
     void WeightsFromHDF5(string filename);

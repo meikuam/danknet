@@ -28,9 +28,10 @@ set(SOURCES
     net.cpp
     layer.cpp
     solver.cpp
+
     convolutional_layer.cpp
     fully_connected_layer.cpp
-    data_layer.cpp
+#    data_layer.cpp
     pooling_layer.cpp
     loss_layer.cpp
 )
@@ -38,15 +39,16 @@ set(HEADERS
     data.h
 
     danknet.h
+    common.h
 
     net.h
     layer.h
     solver.h
-    params.h
+#    params.h
 
     convolutional_layer.h
     fully_connected_layer.h
-    data_layer.h
+#    data_layer.h
     pooling_layer.h
     loss_layer.h
 )
