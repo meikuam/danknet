@@ -29,12 +29,10 @@ set(SOURCES
     layer.cpp
     solver.cpp
 
-    #    data_layer.cpp
-
-#    convolutional_layer.cpp
-#    fully_connected_layer.cpp
-#    pooling_layer.cpp
-#    loss_layer.cpp
+    convolutional_layer.cpp
+    fully_connected_layer.cpp
+    pooling_layer.cpp
+    loss_layer.cpp
 )
 set(HEADERS
     data.h
@@ -45,14 +43,12 @@ set(HEADERS
     net.h
     layer.h
     solver.h
-#    params.h
+    params.h
 
-#    data_layer.h
-
-#    convolutional_layer.h
-#    fully_connected_layer.h
-#    pooling_layer.h
-#    loss_layer.h
+    convolutional_layer.h
+    fully_connected_layer.h
+    pooling_layer.h
+    loss_layer.h
 )
 
 add_executable(${project_name} ${SOURCES} ${HEADERS})
