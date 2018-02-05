@@ -6,50 +6,89 @@
 
 using namespace std;
 
+//------------------Shape---------------------
+class Shape{
+    int     width_,
+            height_,
+            depth_,
+            batch_;
+
+    int     dims_;
+public:
+
+    Shape(int width = 1, int height = 1, int depth = 1, int batch = 1) {
+        width_  = width;
+        height_ = height;
+        depth_  = depth;
+        batch_  = batch;
+        if(batch_ == 1) {
+            if(depth_ == 1) {
+                if(height_ == 1) {
+                    dims_ = 1;
+                } else {
+                    dims_ = 2;
+                }
+            } else {
+                dims_   = 3;
+            }
+        } else {
+            dims_   = 4;
+        }
+    }
+    inline int width()  { return width_; }
+    inline int height() { return height_; }
+    inline int depth()  { return depth_; }
+    inline int batch()  { return batch_; }
+
+    inline int dims()   { return dims_; }
+};
+
+
 //------------------Data3d--------------------
 template<typename Dtype>
 class Data3d{
-    int         w_,
-                h_,
-                c_;
-    bool        nulldata_ = true;
+    Shape       shape_;
     Dtype*      data_;
+
 public:
     // constructor
     Data3d();
     Data3d(int w, int h, int c);
+    Data3d(Shape shape);
 
     // copy constructor
     Data3d(const Data3d &data);
     // assignment operator
     Data3d& operator = (const Data3d& data);
     Dtype* data(int x, int y, int c);
+    inline Dtype* data()                    { return data_; }
 
     ~Data3d();
 
-    inline bool         isNull() const      { return nulldata_; }
-    inline int          width()             { return w_; }
-    inline int          height()            { return h_; }
-    inline int          depth()             { return c_; }
+    inline Shape        shape()             { return shape_; }
+
+    inline int          width()             { return shape_.width(); }
+    inline int          height()            { return shape_.height(); }
+    inline int          depth()             { return shape_.depth(); }
 };
 
 //------------------Data3d--------------------
 //--------------implementation----------------
 template<typename Dtype>
 Data3d<Dtype>::Data3d() {
-    w_ = h_ = c_ = 0;
-    nulldata_ = true;
+    shape_ = Shape();
 }
 
+template<typename Dtype>
+Data3d<Dtype>::Data3d(Shape shape) {
+    shape_      = Shape(shape.width(), shape.height(), shape.depth());
+    data_       = new Dtype[shape_.width() * shape_.height() * shape_.depth()];
+}
 
 template<typename Dtype>
 Data3d<Dtype>::Data3d(int w, int h, int c) {
-    w_          = w;
-    h_          = h;
-    c_          = c;
-    data_       = new Dtype[c_ * w_ * h_];
-    nulldata_   = false;
-
+    shape_      = Shape(w, h, c);
+    data_       = new Dtype[shape_.width() * shape_.height() * shape_.depth()];
 }
 
 
@@ -57,23 +96,18 @@ Data3d<Dtype>::Data3d(int w, int h, int c) {
 // copy constructor
 template<typename Dtype>
 Data3d<Dtype>::Data3d(const Data3d<Dtype> &data) {
-    w_          = data.w_;
-    h_          = data.h_;
-    c_          = data.c_;
-    data_       = new Dtype[c_ * w_ * h_];
-    memcpy(data_, data.data_, c_ * w_ * h_);
-    nulldata_   = data.nulldata_;
+    shape_      = data.shape_;
+    data_       = new Dtype[shape_.width() * shape_.height() * shape_.depth()];
+    //TODO: check sizeof(Dtype)
+    memcpy(data_, data.data_, shape_.width() * shape_.height() * shape_.depth() * sizeof(Dtype));
 }
 
 //TODO: different data types are not supported
 // assignment operator
 template<typename Dtype>
 Data3d<Dtype>& Data3d<Dtype>::operator = (const Data3d<Dtype>& data) {
-    w_          = data.w_;
-    h_          = data.h_;
-    c_          = data.c_;
+    shape_      = data.shape_;
     data_       = data.data_;
-    nulldata_   = data.nulldata_;
 }
 
 template<typename Dtype>
@@ -86,67 +120,13 @@ Dtype* Data3d<Dtype>::data(int x, int y, int c) {
     // v  abc abc abc
     //
     //   abc - c_ elements
-    return &(data_[(y * w_ + x) * c_ + c]);
+    return &(data_[(y * shape_.width() + x) * shape_.depth() + c]);
 }
 
 template<typename Dtype>
 Data3d<Dtype>::~Data3d() {
-    nulldata_   = true;
     delete data_;
 }
-
-//------------------Shape---------------------
-class Shape{
-    int     width_,
-            height_,
-            depth_,
-            batch_;
-
-    int     dims_;
-public:
-    Shape() {
-        width_  = 1;
-        height_ = 1;
-        depth_  = 1;
-        batch_  = 1;
-        dims_   = 1;
-    }
-
-    Shape(int width) {
-        width_  = width;
-        height_ = 1;
-        depth_  = 1;
-        batch_  = 1;
-        dims_   = 1;
-    }
-    Shape(int width, int height) {
-        width_  = width;
-        height_ = height;
-        depth_  = 1;
-        batch_  = 1;
-        dims_   = 2;
-    }
-    Shape(int width, int height, int depth) {
-        width_  = width;
-        height_ = height;
-        depth_  = depth;
-        batch_  = 1;
-        dims_   = 3;
-    }
-    Shape(int width, int height, int depth, int batch) {
-        width_  = width;
-        height_ = height;
-        depth_  = depth;
-        batch_  = batch;
-        dims_   = 4;
-    }
-    inline int width()  { return width_; }
-    inline int height() { return height_; }
-    inline int depth()  { return depth_; }
-    inline int batch()  { return batch_; }
-    inline int dims()   { return dims_; }
-};
-
 
 
 //------------------Blob----------------------
@@ -155,7 +135,7 @@ template<typename Dtype>
 class Blob{
     string                  name_;
     Shape                   shape_;
-    vector<Data3d<Dtype>*>  data_;
+    Data3d<Dtype>**         data_;
 
 public:
     Blob(string name, Shape shape);
@@ -163,13 +143,16 @@ public:
     ~Blob();
     inline string           name()          { return name_; }
     inline Shape            shape()         { return shape_; }
+
+    inline int              width()         { return shape_.width(); }
+    inline int              height()        { return shape_.height(); }
+    inline int              depth()         { return shape_.depth(); }
     inline int              batch_size()    { return shape_.batch(); }
 
     inline Data3d<Dtype>*   Data(int i)     { return data_[i]; }
 
-    inline Dtype*           data(int i)     { return data_[i]->data(0,0,0); }
+    inline Dtype*           data(int i)     { return data_[i]->data(); }
     inline Dtype*           data(int i, int x, int y, int c) {
-//        if(i < shape.batch() && x < shape.width() && y < shape.height() && c < shape.depth())
             return data_[i]->data(x, y, c);
     }
 };
@@ -177,16 +160,21 @@ public:
 
 template<typename Dtype>
 Blob<Dtype>::Blob(string name, Shape shape) {
-    name_ = name;
-    shape_ = shape;
+    name_       = name;
+    shape_      = shape;
+
+    data_       = new Data3d<Dtype>*[shape_.batch()];
     for(int batch = 0; batch < shape_.batch(); batch++) {
-        data_.push_back(new Data3d<Dtype>(shape_.width(), shape_.height(), shape.depth()));
+        data_[i] = new Data3d<Dtype>(shape_);
     }
 }
 
 template<typename Dtype>
 Blob<Dtype>::~Blob() {
-    data_.clear();
+    for(int batch = 0; batch < shape_.batch(); batch++) {
+        delete data_[i];
+    }
+    delete data_;
 }
 
 
