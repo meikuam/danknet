@@ -3,21 +3,15 @@
 namespace danknet {
 
 template<typename Dtype>
-void
-FullyConectedLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top) {
-
+vector<Blob<Dtype>*>*
+FullyConectedLayer<Dtype>::Forward() {
+    return &this->top_;
 }
 
 
 template<typename Dtype>
-void
-FullyConectedLayer<Dtype>::Forward(const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top) {
-
-}
-
-template<typename Dtype>
-void
-FullyConectedLayer<Dtype>::Backward(const vector<Blob<Dtype>*>& top, const vector<Blob<Dtype>*>& bottom) {
-
+vector<Blob<Dtype>*>*
+FullyConectedLayer<Dtype>::Backward() {
+    return &this->bottom_;
 }
 } // namespace danknet

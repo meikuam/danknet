@@ -3,21 +3,17 @@
 namespace danknet {
 
 template<typename Dtype>
-void
-ConvolutionalLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top) {
-
+vector<Blob<Dtype>*>*
+ConvolutionalLayer<Dtype>::Forward() {
+    return &this->top_;
 }
 
 
 template<typename Dtype>
-void
-ConvolutionalLayer<Dtype>::Forward(const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top) {
-
+vector<Blob<Dtype>*>*
+ConvolutionalLayer<Dtype>::Backward() {
+    return &this->bottom_;
 }
 
-template<typename Dtype>
-void
-ConvolutionalLayer<Dtype>::Backward(const vector<Blob<Dtype>*>& top, const vector<Blob<Dtype>*>& bottom) {
-
-}
+INSTANTIATE_CLASS(ConvolutionalLayer);
 } // namespace danknet

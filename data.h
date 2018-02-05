@@ -165,14 +165,14 @@ Blob<Dtype>::Blob(string name, Shape shape) {
 
     data_       = new Data3d<Dtype>*[shape_.batch()];
     for(int batch = 0; batch < shape_.batch(); batch++) {
-        data_[i] = new Data3d<Dtype>(shape_);
+        data_[batch] = new Data3d<Dtype>(shape_);
     }
 }
 
 template<typename Dtype>
 Blob<Dtype>::~Blob() {
     for(int batch = 0; batch < shape_.batch(); batch++) {
-        delete data_[i];
+        delete data_[batch];
     }
     delete data_;
 }

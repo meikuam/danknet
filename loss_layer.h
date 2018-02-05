@@ -11,15 +11,13 @@ template <typename Dtype>
 class LossLayer : public Layer<Dtype> {
  public:
   explicit LossLayer(string name,
-                     vector<string> bottom, vector<string> top)
+                     vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
       : Layer<Dtype>(name, bottom, top) {}
 
     virtual inline layertype type() const {return Loss_Layer; }
 
-    virtual void Forward(const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top);
-    virtual void Backward(const vector<Blob<Dtype>*>& top, const vector<Blob<Dtype>*>& bottom);
-
-    virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top);
+    virtual vector<Blob<Dtype>*>* Forward();
+    virtual vector<Blob<Dtype>*>* Backward();
 
 private:
 };
