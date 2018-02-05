@@ -150,6 +150,7 @@ public:
 
 
 //------------------Blob----------------------
+//TODO: create convenient implementation
 template<typename Dtype>
 class Blob{
     string                  name_;
@@ -163,9 +164,16 @@ public:
     inline string           name()          { return name_; }
     inline Shape            shape()         { return shape_; }
     inline int              batch_size()    { return shape_.batch(); }
-    inline Data3d<Dtype>*   data(int i)     { return data_[i]; }
-    inline vector<Data3d<Dtype>*>* data()   { return &data_; }
+
+    inline Data3d<Dtype>*   Data(int i)     { return data_[i]; }
+
+    inline Dtype*           data(int i)     { return data_[i]->data(0,0,0); }
+    inline Dtype*           data(int i, int x, int y, int c) {
+//        if(i < shape.batch() && x < shape.width() && y < shape.height() && c < shape.depth())
+            return data_[i]->data(x, y, c);
+    }
 };
+
 
 template<typename Dtype>
 Blob<Dtype>::Blob(string name, Shape shape) {

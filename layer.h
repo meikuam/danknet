@@ -42,7 +42,7 @@ public:
 
     inline vector<Blob<Dtype>*>* get_bottom() { return &bottom_; }
     inline vector<Blob<Dtype>*>* get_top() { return &top_; }
-    inline vector<Data3d<Dtype>*>* get_weights(){ return &weights_;}
+    inline vector<Blob<Dtype>*>* get_weights(){ return &weights_;}
 
 
 
