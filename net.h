@@ -1,10 +1,9 @@
 #ifndef NET_H
 #define NET_H
 
+#include <string>
 #include <vector>
 #include <map>
-
-#include <string>
 
 #include "layer.h"
 #include "common.h"
@@ -19,15 +18,13 @@ enum Phase {
     TEST
 };
 
-/*
- * Root layer has no bottom data. That data feeds to net via "load_batch()" method.
- */
 
 template <typename Dtype>
 class Net {
 private:
-    Phase           phase_;
-    string          name_;
+    Phase phase_;
+    string name_;
+
     vector<Layer<Dtype>*> layers_;
     map<string, Blob<Dtype>*> blobs_;
 
@@ -38,13 +35,11 @@ private:
 
 //    }
 public:
-    explicit Net();
+    explicit Net() {}
     virtual ~Net() {}
 
     void AddLayer(Layer<Dtype>* layer);
-    void AddBlob(Blob<Dtype>& blob);
-
-    void Compile();
+//    void AddBlob(Blob<Dtype>& blob);
 
     inline Phase phase() { return phase_; }
     inline string name() { return name_; }

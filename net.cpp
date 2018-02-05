@@ -2,11 +2,6 @@
 
 namespace danknet {
 
-template<typename Dtype>
-Net<Dtype>::Net() {
-//    Init();
-}
-
 
 template<typename Dtype>
 void Net<Dtype>::Forward() {
@@ -15,32 +10,35 @@ void Net<Dtype>::Forward() {
     }
 }
 
-//template<typename Dtype>
-//void Net<Dtype>::Backward() {
+template<typename Dtype>
+void Net<Dtype>::Backward() {
+    for(int i = layers_.size() - 1; i >= 0; i--) {
+        layers_[i]->Backward();
+    }
+}
 
-//}
+template<typename Dtype>
+void Net<Dtype>::WeightsFromHDF5(string filename) {
 
-//template<typename Dtype>
-//void Net<Dtype>::WeightsFromHDF5(string filename) {
+}
 
-//}
+template<typename Dtype>
+void Net<Dtype>::WeightsToHDF5(string filename) {
 
-//template<typename Dtype>
-//void Net<Dtype>::WeightsToHDF5(string filename) {
-
-//}
+}
 
 template<typename Dtype>
 void Net<Dtype>::AddLayer(Layer<Dtype>* layer) {
     //TODO: bottom_data_ / top_data_ creation
     layers_.push_back(layer);
-}
-
-
-template<typename Dtype>
-void Net<Dtype>::AddBlob(Blob<Dtype>& blob) {
 
 }
+
+
+//template<typename Dtype>
+//void Net<Dtype>::AddBlob(Blob<Dtype>& blob) {
+
+//}
 
 INSTANTIATE_CLASS(Net);
 } // namespace danknet

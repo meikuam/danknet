@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     Blob<float> data("data", Shape(3, 1, 1));
     Blob<float> label("label", Shape(1));
 
-    Data3d<float>* data0 = data.data(0);
+    Data3d<float>* data0 = data.Data(0);
     for(int x = 0; x < data0->width(); x++) {
         for(int y = 0; y < data0->height(); y++) {
             for(int c = 0; c < data0->depth(); c++) {
@@ -43,10 +43,11 @@ int main(int argc, char *argv[])
                             conv1_top,
                             conv2_top,
                             conv3_top,
-                            conv4_top;
+                            conv4_top,
+                            label_bottom;
 
     conv0_bottom.push_back(&data);
-
+    label_bottom.push_back(&label);
     cout<<"AddLayer"<<endl;
 
     edge_detector.AddLayer(new Layer<float>("conv0", conv0_bottom, conv0_top));
@@ -60,12 +61,12 @@ int main(int argc, char *argv[])
 
     cout<<"cout"<<endl;
     edge_detector.Forward();
-    cout<<conv0_bottom[0]->name()<<" "<<*conv0_bottom[0]->data(0)->data(0,0,0)<<endl;
-    cout<<conv0_top[0]->name()<<" "<<*conv0_top[0]->data(0)->data(0,0,0)<<endl;
-    cout<<conv1_top[0]->name()<<" "<<*conv1_top[0]->data(0)->data(0,0,0)<<endl;
-    cout<<conv2_top[0]->name()<<" "<<*conv2_top[0]->data(0)->data(0,0,0)<<endl;
-    cout<<conv3_top[0]->name()<<" "<<*conv3_top[0]->data(0)->data(0,0,0)<<endl;
-    cout<<conv4_top[0]->name()<<" "<<*conv4_top[0]->data(0)->data(0,0,0)<<endl;
+    cout<<conv0_bottom[0]->name()<<" "<<*conv0_bottom[0]->data(0, 0, 0, 0)<<endl;
+    cout<<conv0_top[0]->name()<<" "<<*conv0_top[0]->data(0, 0, 0, 0)<<endl;
+    cout<<conv1_top[0]->name()<<" "<<*conv1_top[0]->data(0, 0, 0, 0)<<endl;
+    cout<<conv2_top[0]->name()<<" "<<*conv2_top[0]->data(0, 0, 0, 0)<<endl;
+    cout<<conv3_top[0]->name()<<" "<<*conv3_top[0]->data(0, 0, 0, 0)<<endl;
+    cout<<conv4_top[0]->name()<<" "<<*conv4_top[0]->data(0, 0, 0, 0)<<endl;
 
     //-------
 //    int             c;
