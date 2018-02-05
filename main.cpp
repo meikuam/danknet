@@ -18,35 +18,56 @@ int main(int argc, char *argv[])
     cout<<"start"<<endl;
 
     Net<float> edge_detector;
-    vector<string> data0_bottom, data0_top;
-    vector<string> conv1_bottom, conv1_top;
-    vector<string> conv2_bottom, conv2_top;
-    vector<string> fc3_bottom, fc3_top;
-    vector<string> loss_bottom, loss_top;
 
-    data0_top.push_back("data0");
-    data0_top.push_back("label0");
 
-    conv1_bottom.push_back("data0");
-    conv1_top.push_back("conv1");
+    Blob<float> data("data", Shape(3, 1, 1));
+    Blob<float> label("label", Shape(1));
 
-    conv2_bottom.push_back("conv1");
-    conv2_top.push_back("conv2");
+    Data3d<float>* data0 = data.data(0);
+    for(int x = 0; x < data0->width(); x++) {
+        for(int y = 0; y < data0->height(); y++) {
+            for(int c = 0; c < data0->depth(); c++) {
+                *data0->data(x, y, c) = 10.f;
+            }
+        }
+    }
+    for(int x = 0; x < data0->width(); x++) {
+        for(int y = 0; y < data0->height(); y++) {
+            for(int c = 0; c < data0->depth(); c++) {
+                cout<<*data0->data(x, y, c)<<" ";
+            }
+        }
+    }
+    vector<Blob<float>*>    conv0_bottom,
+                            conv0_top,
+                            conv1_top,
+                            conv2_top,
+                            conv3_top,
+                            conv4_top;
 
-    fc3_bottom.push_back("conv2");
-    fc3_top.push_back("fc3");
+    conv0_bottom.push_back(&data);
 
-    loss_bottom.push_back("label0");
-    loss_bottom.push_back("fc3");
-    loss_top.push_back("loss");
+    cout<<"AddLayer"<<endl;
 
-    edge_detector.AddLayer(new DataLayer<float>(23, 23, 3, "data0", data0_bottom, data0_top));
-    edge_detector.AddLayer(new ConvolutionalLayer<float>(5, 5, 32, 3, 3, 0, 0, "conv1", conv1_bottom, conv1_top));
-    edge_detector.AddLayer(new ConvolutionalLayer<float>(3, 3, 256, 2, 2, 0, 0, "conv2", conv2_bottom, conv2_top));
-    edge_detector.AddLayer(new FullyConectedLayer<float>(1, "fc3", fc3_bottom, fc3_top));
-    edge_detector.AddLayer(new LossLayer<float>("loss", loss_bottom, loss_top));
+    edge_detector.AddLayer(new Layer<float>("conv0", conv0_bottom, conv0_top));
+    edge_detector.AddLayer(new Layer<float>("conv1", conv0_top, conv1_top));
+    edge_detector.AddLayer(new Layer<float>("conv2", conv1_top, conv2_top));
+    edge_detector.AddLayer(new Layer<float>("conv3", conv2_top, conv3_top));
+    edge_detector.AddLayer(new Layer<float>("conv4", conv3_top, conv4_top));
 
-//    edge_detector.Forward();
+    cout<<"Forward"<<endl;
+    edge_detector.Forward();
+
+    cout<<"cout"<<endl;
+    edge_detector.Forward();
+    cout<<conv0_bottom[0]->name()<<" "<<*conv0_bottom[0]->data(0)->data(0,0,0)<<endl;
+    cout<<conv0_top[0]->name()<<" "<<*conv0_top[0]->data(0)->data(0,0,0)<<endl;
+    cout<<conv1_top[0]->name()<<" "<<*conv1_top[0]->data(0)->data(0,0,0)<<endl;
+    cout<<conv2_top[0]->name()<<" "<<*conv2_top[0]->data(0)->data(0,0,0)<<endl;
+    cout<<conv3_top[0]->name()<<" "<<*conv3_top[0]->data(0)->data(0,0,0)<<endl;
+    cout<<conv4_top[0]->name()<<" "<<*conv4_top[0]->data(0)->data(0,0,0)<<endl;
+
+    //-------
 //    int             c;
 //    bool            im_load        = false,
 //            w_load         = false;

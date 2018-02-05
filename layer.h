@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "data.h"
+#include "common.h"
 
 using namespace std;
 
@@ -23,34 +24,27 @@ enum layertype {
 
 template <typename Dtype>
 class Layer {
+private:
+    string          name_;
+
+    vector<Blob<Dtype>*> bottom_;
+    vector<Blob<Dtype>*> top_;
+    vector<Blob<Dtype>*> weights_;
 public:
-    explicit Layer(string name, vector<string> bottom, vector<string> top);
+    explicit Layer(string name, vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
 
     virtual ~Layer() {}
 
-
     virtual inline layertype type() const {return BaseType; }
-    virtual void Forward(const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top);
-    virtual void Backward(const vector<Blob<Dtype>*>& top, const vector<Blob<Dtype>*>& bottom);
+    virtual vector<Blob<Dtype>*>* Forward();
+    virtual vector<Blob<Dtype>*>* Backward();
 
-    virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top);
 
-    inline vector<string> get_bottom_names() {
-        return bottom_;
-    }
-    inline vector<string> get_top_names() {
-        return top_;
-    }
-    inline vector<Data3d<Dtype>*>* get_weights(){
-        return &weights_;
-    }
+    inline vector<Blob<Dtype>*>* get_bottom() { return &bottom_; }
+    inline vector<Blob<Dtype>*>* get_top() { return &top_; }
+    inline vector<Blob<Dtype>*>* get_weights(){ return &weights_;}
 
-private:
-    string          name_;
-    vector<string>  top_;
-    vector<string>  bottom_;
 
-    vector<Data3d<Dtype>*> weights_;
 
 };
 
