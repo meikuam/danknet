@@ -14,4 +14,5 @@ vector<Blob<Dtype>*>*
 FullyConectedLayer<Dtype>::Backward() {
     return &this->bottom_;
 }
+INSTANTIATE_CLASS(FullyConectedLayer);
 } // namespace danknet

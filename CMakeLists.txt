@@ -16,6 +16,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/danknet
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/danknet
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/danknet/layers
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/danknet/layers
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
@@ -25,30 +29,30 @@ find_package(Qt5Gui REQUIRED)
 set(SOURCES
     main.cpp
 
-    net.cpp
-    layer.cpp
-    solver.cpp
+    src/danknet/net.cpp
+    src/danknet/layer.cpp
+    src/danknet/solver.cpp
 
-    convolutional_layer.cpp
-    fully_connected_layer.cpp
-    pooling_layer.cpp
-    loss_layer.cpp
+    src/danknet/layers/convolutional_layer.cpp
+    src/danknet/layers/fully_connected_layer.cpp
+    src/danknet/layers/pooling_layer.cpp
+    src/danknet/layers/loss_layer.cpp
 )
 set(HEADERS
-    data.h
+    include/danknet/data.h
 
-    danknet.h
-    common.h
+    include/danknet/danknet.h
+    include/danknet/common.h
 
-    net.h
-    layer.h
-    solver.h
-    params.h
+    include/danknet/net.h
+    include/danknet/layer.h
+    include/danknet/solver.h
+    include/danknet/params.h
 
-    convolutional_layer.h
-    fully_connected_layer.h
-    pooling_layer.h
-    loss_layer.h
+    include/danknet/layers/convolutional_layer.h
+    include/danknet/layers/fully_connected_layer.h
+    include/danknet/layers/pooling_layer.h
+    include/danknet/layers/loss_layer.h
 )
 
 add_executable(${project_name} ${SOURCES} ${HEADERS})
