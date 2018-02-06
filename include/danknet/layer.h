@@ -13,6 +13,23 @@ using namespace std;
 namespace danknet {
 
 
+// -----------------Layer---------------------
+// Layer have bottom data as input and top
+// data as output. top data is created in
+// constructor of the Layer.
+
+//------------vector<Blob<Dtype>*>------------
+// vector of Blobs is a container for
+// references to multiple input data.
+// For example LossLayer that have
+// two input data Blobs (predicted data,
+// label).
+
+//-----------------Blob<Dtype>*---------------
+// Blob is a container for batches of
+// references to Data3d objects.
+
+
 enum layertype {
     BaseType,
     Convolutional_Layer,
@@ -20,6 +37,7 @@ enum layertype {
     Pooling_Layer,
     Loss_Layer
 };
+
 
 template <typename Dtype>
 class Layer {
@@ -31,7 +49,7 @@ protected:
 
     vector<Blob<Dtype>*> top_;
     vector<Blob<Dtype>*> bottom_;
-    vector<Blob<Dtype>*> weights_;
+    Blob<Dtype>*         weights_;
 
 public:
     explicit Layer(string name, vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
@@ -44,7 +62,7 @@ public:
 
     inline vector<Blob<Dtype>*>* top() { return &top_; }
     inline vector<Blob<Dtype>*>* bottom() { return &bottom_; }
-    inline vector<Blob<Dtype>*>* weights(){ return &weights_;}
+    inline Blob<Dtype>*          weights(){ return weights_;}
 
 //    inline bool has_top_layers() { return top_layers_.size() > 0 ? true : false; }
 //    inline bool has_bottom_layers() { return top_layers_.size() > 0 ? true : false; }

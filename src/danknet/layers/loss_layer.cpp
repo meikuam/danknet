@@ -2,6 +2,15 @@
 
 namespace danknet {
 
+
+template<typename Dtype>
+LossLayer<Dtype>::LossLayer(string name,
+                            vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
+    : Layer<Dtype>(name, bottom, top) {
+
+}
+
+
 template<typename Dtype>
 vector<Blob<Dtype>*>*
 LossLayer<Dtype>::Forward() {

@@ -12,10 +12,7 @@ class FullyConectedLayer : public Layer<Dtype> {
  public:
   explicit FullyConectedLayer(int units,
                               string name,
-                              vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
-      : Layer<Dtype>(name, bottom, top) {
-        units_ = units;
-    }
+                              vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
 
     virtual inline layertype type() const {return Fully_Connected_Layer; }
 

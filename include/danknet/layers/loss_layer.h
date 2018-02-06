@@ -11,8 +11,7 @@ template <typename Dtype>
 class LossLayer : public Layer<Dtype> {
  public:
   explicit LossLayer(string name,
-                     vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
-      : Layer<Dtype>(name, bottom, top) {}
+                     vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
 
     virtual inline layertype type() const {return Loss_Layer; }
 
