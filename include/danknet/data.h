@@ -49,7 +49,7 @@ template<typename Dtype>
 class Data3d{
     Shape       shape_;
     Dtype*      data_;
-
+    Dtype       zero_val = 0;
 public:
     // constructor
     Data3d();
@@ -121,10 +121,10 @@ Dtype* Data3d<Dtype>::data(int x, int y, int c) {
     // v  abc abc abc
     //
     //   abc - c_ elements
-    if(x < 0 || x > shape_.width() ||
-       y < 0 || y > shape_.height() ||
-       c < 0 || c > shape_.depth()) {
-        return 0;
+    if(x < 0 || x >= shape_.width() ||
+       y < 0 || y >= shape_.height() ||
+       c < 0 || c >= shape_.depth()) {
+        return &zero_val;
     } else {
         return &(data_[(y * shape_.width() + x) * shape_.depth() + c]);
     }
