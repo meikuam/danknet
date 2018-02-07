@@ -22,8 +22,8 @@ PoolingLayer<Dtype>::PoolingLayer(int kernel_w, int kernel_h,
 
       //-------------create top vector--------------
       //(input_dim + 2 * pad - kernel_size) / stride + 1;
-      int out_w = (this->bottom_[0]->shape().width() + 2 * pad_w_ - kernel_w_) / stride_w_ + 1;
-      int out_h = (this->bottom_[0]->shape().height() + 2 * pad_h_ - kernel_h_) / stride_h_ + 1;
+      int out_w = (this->bottom_[0]->shape().width() + /*2 **/ pad_w_ - kernel_w_) / stride_w_ + 1;
+      int out_h = (this->bottom_[0]->shape().height() + /*2 **/ pad_h_ - kernel_h_) / stride_h_ + 1;
       this->top_.push_back(new Blob<Dtype>(this->name_ + "_data", Shape(out_w, out_h, this->bottom_[0]->shape().depth(), this->bottom_[0]->shape().batch())));
       top = this->top_;
 
@@ -40,8 +40,8 @@ PoolingLayer<Dtype>::Forward() {
         Data3d<Dtype>* top_data = top->Data(batch);
         Shape top_shape = top_data->shape();
         for(int depth = 0; depth < top_shape.depth(); depth++) {
-            for(int out_x = 0, inp_x = - pad_w_; out_x < top_shape.width(); out_x++,  inp_x += stride_w_ ) {
-                for(int out_y = 0, inp_y = - pad_h_; out_y < top_shape.height(); out_y++, inp_y += stride_h_) {
+            for(int out_x = 0, inp_x = 0/*- pad_w_*/; out_x < top_shape.width(); out_x++,  inp_x += stride_w_ ) {
+                for(int out_y = 0, inp_y = 0/*- pad_h_*/; out_y < top_shape.height(); out_y++, inp_y += stride_h_) {
                     Dtype val = numeric_limits<Dtype>::min();
                     //--------max pooling-----------
                     for(int x = 0; x < kernel_w_; x++) {
@@ -71,8 +71,8 @@ PoolingLayer<Dtype>::Backward() {
         Data3d<Dtype>* top_data = top->Data(batch);
         Shape top_shape = top_data->shape();
         for(int depth = 0; depth < top_shape.depth(); depth++) {
-            for(int out_x = 0, inp_x = - pad_w_; out_x < top_shape.width(); out_x++,  inp_x += stride_w_ ) {
-                for(int out_y = 0, inp_y = - pad_h_; out_y < top_shape.height(); out_y++, inp_y += stride_h_) {
+            for(int out_x = 0, inp_x = 0/*- pad_w_*/; out_x < top_shape.width(); out_x++,  inp_x += stride_w_ ) {
+                for(int out_y = 0, inp_y = 0/*- pad_h_*/; out_y < top_shape.height(); out_y++, inp_y += stride_h_) {
                     //--------max pooling-----------
                     for(int x = 0; x < kernel_w_; x++) {
                         for(int y = 0; y < kernel_h_; y++) {

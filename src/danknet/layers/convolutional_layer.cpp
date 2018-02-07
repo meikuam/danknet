@@ -27,8 +27,8 @@ ConvolutionalLayer<Dtype>::ConvolutionalLayer(int kernel_w, int kernel_h,
 
       //-------------create top vector--------------
       //(input_dim + 2 * pad - kernel_size) / stride + 1;
-      int out_w = (this->bottom_[0]->shape().width() + 2 * pad_w_ - kernel_w_) / stride_w_ + 1;
-      int out_h = (this->bottom_[0]->shape().height() + 2 * pad_h_ - kernel_h_) / stride_h_ + 1;
+      int out_w = (this->bottom_[0]->shape().width() + /*2 **/ pad_w_ - kernel_w_) / stride_w_ + 1;
+      int out_h = (this->bottom_[0]->shape().height() + /*2 **/ pad_h_ - kernel_h_) / stride_h_ + 1;
       this->top_.push_back(new Blob<Dtype>(this->name_ + "_data", Shape(out_w, out_h, kernels_, this->bottom_[0]->shape().batch())));
       top = this->top_;
 }
@@ -54,8 +54,8 @@ ConvolutionalLayer<Dtype>::Forward() {
         for(int kernel = 0; kernel < top_shape.depth(); kernel++) {
             Data3d<Dtype>* weights_data = weights->Data(kernel);
             for(int depth = 0; depth < bottom_shape.depth(); depth++) {
-                for(int out_x = 0, inp_x = - pad_w_; out_x < top_shape.width(); out_x++,  inp_x += stride_w_ ) {
-                    for(int out_y = 0, inp_y = - pad_h_; out_y < top_shape.height(); out_y++, inp_y += stride_h_) {
+                for(int out_x = 0, inp_x = 0/*- pad_w_*/; out_x < top_shape.width(); out_x++,  inp_x += stride_w_ ) {
+                    for(int out_y = 0, inp_y = 0/*- pad_h_*/; out_y < top_shape.height(); out_y++, inp_y += stride_h_) {
                         //--------convolution (correlation)-----------
                         for(int x = 0; x < weights_shape.width(); x++) {
                             for(int y = 0; y < weights_shape.height(); y++) {
