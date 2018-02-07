@@ -20,7 +20,7 @@ class ConvolutionalLayer : public Layer<Dtype> {
 
     virtual vector<Blob<Dtype>*>* Forward();
     virtual vector<Blob<Dtype>*>* Backward();
-
+    void initWeights();
 private:
     int kernel_h_, kernel_w_;
     int stride_h_, stride_w_;

@@ -22,6 +22,8 @@ ConvolutionalLayer<Dtype>::ConvolutionalLayer(int kernel_w, int kernel_h,
       //-----------------Blob<Dtype>*---------------
       //---------------create weights_--------------
       this->weights_ = new Blob<Dtype>(this->name_ + "_weights", Shape(kernel_w_, kernel_h_, depth_, kernels_));
+      initWeights();
+
       //-------------copy bottom vector-------------
       this->bottom_ = bottom;
 
@@ -82,7 +84,63 @@ ConvolutionalLayer<Dtype>::Forward() {
 template<typename Dtype>
 vector<Blob<Dtype>*>*
 ConvolutionalLayer<Dtype>::Backward() {
+    Blob<Dtype>* bottom = this->bottom_[0];
+    Blob<Dtype>* top = this->top_[0];
+    Blob<Dtype>* weights = this->weights_;
+
+
+    //---------------clear batches----------------
+    top->setToZero();
+    //-------------------batch--------------------
+    for(int batch = 0; batch < bottom->batch_size(); batch++) {
+        Data3d<Dtype>* bottom_data = bottom->Data(batch);
+        Data3d<Dtype>* top_data = top->Data(batch);
+        Shape bottom_shape = bottom_data->shape();
+        Shape top_shape = top_data->shape();
+        Shape weights_shape = this->weights_->shape();
+//        //-------------------kernel-------------------
+//        for(int kernel = 0; kernel < top_shape.depth(); kernel++) {
+//            Data3d<Dtype>* weights_data = weights->Data(kernel);
+//            for(int depth = 0; depth < bottom_shape.depth(); depth++) {
+//                for(int out_x = 0, inp_x = 0/*- pad_w_*/; out_x < top_shape.width(); out_x++,  inp_x += stride_w_ ) {
+//                    for(int out_y = 0, inp_y = 0/*- pad_h_*/; out_y < top_shape.height(); out_y++, inp_y += stride_h_) {
+//                        //--------convolution (correlation)-----------
+//                        for(int x = 0; x < weights_shape.width(); x++) {
+//                            for(int y = 0; y < weights_shape.height(); y++) {
+//                                *top_data->data(out_x, out_y, kernel) += *bottom_data->data(inp_x + x, inp_y + y, depth) * *weights_data->data(x, y, depth);
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//            for(int out_x = 0; out_x < top_shape.width(); out_x++) {
+//                for(int out_y = 0; out_y < top_shape.height(); out_y++) {
+//                    //-------------ReLU activation----------------
+//                    if(*top_data->data(out_x, out_y, kernel) < 0) {
+//                        *top_data->data(out_x, out_y, kernel) = 0;
+//                    }
+//                }
+//            }
+//        }
+    }
     return &this->bottom_;
+}
+
+template<typename Dtype>
+void
+ConvolutionalLayer<Dtype>::initWeights() {
+    Blob<Dtype>* weights = this->weights_;
+    Shape weights_shape = this->weights_->shape();
+
+    for(int k = 0; k < weights_shape.batch(); k++) {
+       for(int c = 0; c < weights_shape.depth(); c++) {
+           for(int x = 0; x < weights_shape.width(); x++) {
+               for(int y = 0; y < weights_shape.height(); y++) {
+                   *weights->data(k, x, y, c) = ((Dtype) rand() / RAND_MAX) * 2.0 - 0.5;
+               }
+           }
+       }
+    }
 }
 
 INSTANTIATE_CLASS(ConvolutionalLayer);
