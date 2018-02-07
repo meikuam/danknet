@@ -57,6 +57,7 @@ public:
     virtual ~Layer() {}
 
     virtual inline layertype type() const {return BaseType; }
+    virtual inline string name() {return name_; }
     virtual vector<Blob<Dtype>*>* Forward();
     virtual vector<Blob<Dtype>*>* Backward();
 

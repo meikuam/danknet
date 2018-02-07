@@ -5,10 +5,17 @@
 #include <vector>
 #include <map>
 
+
+#include "hdf5.h"
+#include "H5Cpp.h"
+#include "hdf5_hl.h"
+
+
 #include "layer.h"
 #include "common.h"
 
 using namespace std;
+using namespace H5;
 
 namespace danknet {
 

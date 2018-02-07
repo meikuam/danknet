@@ -14,7 +14,14 @@ add_definitions( -std=c++11 )
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
+
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(HDF5 COMPONENTS C CXX HL REQUIRED)
+#find_package(OpenCV REQUIRED)
+
 include_directories(
+    ${HDF5_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/src/danknet
     ${CMAKE_CURRENT_SOURCE_DIR}/include/danknet
@@ -23,8 +30,6 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Gui REQUIRED)
 
 set(SOURCES
     main.cpp
@@ -56,4 +61,4 @@ set(HEADERS
 )
 
 add_executable(${project_name} ${SOURCES} ${HEADERS})
-target_link_libraries(${project_name} Qt5::Core Qt5::Gui)
+target_link_libraries(${project_name} Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES}) #${OpenCV_LIBS})
