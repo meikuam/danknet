@@ -61,6 +61,7 @@ public:
     // assignment operator
     Data3d& operator = (const Data3d& data);
     Dtype* data(int x, int y, int c);
+    void setToZero();
     inline Dtype* data()                    { return data_; }
 
     ~Data3d();
@@ -120,7 +121,18 @@ Dtype* Data3d<Dtype>::data(int x, int y, int c) {
     // v  abc abc abc
     //
     //   abc - c_ elements
-    return &(data_[(y * shape_.width() + x) * shape_.depth() + c]);
+    if(x < 0 || x > shape_.width() ||
+       y < 0 || y > shape_.height() ||
+       c < 0 || c > shape_.depth()) {
+        return 0;
+    } else {
+        return &(data_[(y * shape_.width() + x) * shape_.depth() + c]);
+    }
+}
+
+template<typename Dtype>
+void Data3d<Dtype>::setToZero() {
+    memset(data_, 0, shape_.width() * shape_.height() * shape_.depth() * sizeof(Dtype));
 }
 
 template<typename Dtype>
@@ -155,8 +167,15 @@ public:
     inline Dtype*           data(int i, int x, int y, int c) {
             return data_[i]->data(x, y, c);
     }
+    void setToZero();
 };
 
+template<typename Dtype>
+void Blob<Dtype>::setToZero() {
+    for(int batch = 0; batch < shape_.batch(); batch++) {
+        data_[batch]->setToZero();
+    }
+}
 
 template<typename Dtype>
 Blob<Dtype>::Blob(string name, Shape shape) {
