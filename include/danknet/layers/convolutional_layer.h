@@ -2,6 +2,9 @@
 #define CONVOLUTIONAL_LAYER_H
 #include "layer.h"
 
+#include <random>
+#include <chrono>
+
 namespace danknet {
 
 //Convolutional layer
@@ -26,6 +29,10 @@ private:
     int stride_h_, stride_w_;
     int pad_h_, pad_w_;
     int kernels_, depth_;
+
+
+    std::default_random_engine generator;
+    std::uniform_real_distribution<Dtype> distribution;
 };
 
 } // namespace danknet

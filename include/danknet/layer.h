@@ -35,7 +35,8 @@ enum layertype {
     Convolutional_Layer,
     Fully_Connected_Layer,
     Pooling_Layer,
-    Loss_Layer
+    Loss_Layer,
+    Softmax_Layer
 };
 
 

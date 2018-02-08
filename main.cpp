@@ -23,7 +23,8 @@ int main(int argc, char *argv[])
 
 
     Blob<float> data("data", Shape(32, 32, 3));
-    Blob<float> label("label", Shape(1));
+    Blob<float> label("label", Shape(1, 1, 2));
+    *label.Data(0)->data(0, 0, 0) = 1;
 
     Data3d<float>* data0 = data.Data(0);
     QImage img("1.png");
@@ -52,121 +53,350 @@ int main(int argc, char *argv[])
                             conv2_top,
                             pool3_top,
                             conv4_top,
-                            ip5_top;
+                            ip5_top,
+                            softmax_top;
+
 
     conv0_bottom.push_back(&data);
     cout<<"AddLayer"<<endl;
 
-    LeNet.AddLayer(new ConvolutionalLayer<float>(7, 7, 3, 6, 1, 1, 0, 0, "conv0", conv0_bottom, conv0_top));
+    LeNet.AddLayer(new ConvolutionalLayer<float>(7, 7, 3, 3, 1, 1, 0, 0, "conv0", conv0_bottom, conv0_top));
     LeNet.AddLayer(new PoolingLayer<float>(2, 2, 2, 2, 0, 0, "pool1", conv0_top, pool1_top));
-    LeNet.AddLayer(new ConvolutionalLayer<float>(5, 5, 6, 32, 1, 1, 0, 0, "conv2", pool1_top, conv2_top));
+    LeNet.AddLayer(new ConvolutionalLayer<float>(5, 5, 3, 2, 1, 1, 0, 0, "conv2", pool1_top, conv2_top));
     LeNet.AddLayer(new PoolingLayer<float>(2, 2, 2, 2, 1, 1, "pool3", conv2_top, pool3_top));
-    LeNet.AddLayer(new ConvolutionalLayer<float>(5, 5, 32, 100, 1, 1, 0, 0, "conv4", pool3_top, conv4_top));
-    LeNet.AddLayer(new ConvolutionalLayer<float>(1, 1, 100, 10, 1, 1, 0, 0, "ip5", conv4_top, ip5_top));
+    LeNet.AddLayer(new ConvolutionalLayer<float>(5, 5, 2, 10, 1, 1, 0, 0, "conv4", pool3_top, conv4_top));
+    LeNet.AddLayer(new ConvolutionalLayer<float>(1, 1, 10, 2, 1, 1, 0, 0, "ip5", conv4_top, ip5_top));
+    ip5_top.push_back(&label);
+    LeNet.AddLayer(new LossLayer<float>(0.1, "loss", ip5_top, softmax_top));
 
 
-    cout<<"WeightsFromHDF5"<<endl;
-    LeNet.WeightsFromHDF5("cnn_weights.hdf5");
-//    cout<<"WeightsToHDF5"<<endl;
-//    LeNet.WeightsToHDF5("cnn_weights_2.hdf5");
-
-    cout<<"Forward"<<endl;
+//    cout<<"WeightsFromHDF5"<<endl;
+//    LeNet.WeightsFromHDF5("lenet1900.hdf5");
+    cout<<"---------------------Forward----------------------"<<endl;
+    for(int i = 0; i < 5000; i++) {
     LeNet.Forward();
+//    for(int i = 0; i < 10; i++) {
+//        cout<<*ip5_top[0]->data(0,0,0,i)<< " ";
+//    }
+    cout<<endl<<i<<" "<<softmax_top[0]->name()<<" "<<*softmax_top[0]->data(0, 0, 0, 0)<<endl;
 
+    Data3d<float>* data0 = conv0_bottom[0]->Data(0);
 
-    cout<<conv0_bottom[0]->name()<<endl;
-    for(int k = 0; k < conv0_bottom[0]->batch_size(); k++) {
-        data0 = conv0_bottom[0]->Data(k);
-        for(int c = 0; c < data0->depth(); c++) {
-            for(int y = 0; y < data0->height(); y++) {
-                for(int x = 0; x < data0->width(); x++) {
-                    cout<<*data0->data(x, y, c)<<" ";
-                }
-                cout<<endl;
-            }
-            cout<<endl<<endl;
+    for(int x = 0; x < data0->width(); x++) {
+        for(int y = 0; y < data0->height(); y++) {
+            QRgb val = img.pixel(x, y);
+            *data0->data(x, y, 0) = qRed(val);
+            *data0->data(x, y, 1) = qGreen(val);
+            *data0->data(x, y, 2) = qBlue(val);
         }
     }
+    //-
+//        cout<<conv0_bottom[0]->name()<<endl;
+//        for(int k = 0; k < conv0_bottom[0]->batch_size(); k++) {
+//            data0 = conv0_bottom[0]->Data(k);
+//            for(int c = 0; c < data0->depth(); c++) {
+//                for(int y = 0; y < data0->height(); y++) {
+//                    for(int x = 0; x < data0->width(); x++) {
+//                        cout<<*data0->data(x, y, c)<<" ";
+//                    }
+//                    cout<<endl;
+//                }
+//                cout<<endl<<endl;
+//            }
+//        }
 
-    cout<<conv0_top[0]->name()<<endl;
-    for(int k = 0; k < conv0_top[0]->batch_size(); k++) {
-        data0 = conv0_top[0]->Data(k);
-        for(int c = 0; c < data0->depth(); c++) {
-            for(int y = 0; y < data0->height(); y++) {
-                for(int x = 0; x < data0->width(); x++) {
-                    cout<<*data0->data(x, y, c)<<" ";
-                }
-                cout<<endl;
-            }
-            cout<<endl<<endl;
-        }
-    }
-    cout<<pool1_top[0]->name()<<endl;
-    for(int k = 0; k < pool1_top[0]->batch_size(); k++) {
-        data0 = pool1_top[0]->Data(k);
-        for(int c = 0; c < data0->depth(); c++) {
-            for(int y = 0; y < data0->height(); y++) {
-                for(int x = 0; x < data0->width(); x++) {
-                    cout<<*data0->data(x, y, c)<<" ";
-                }
-                cout<<endl;
-            }
-            cout<<endl<<endl;
-        }
-    }
-    cout<<conv2_top[0]->name()<<endl;
-    for(int k = 0; k < conv2_top[0]->batch_size(); k++) {
-        data0 = conv2_top[0]->Data(k);
-        for(int c = 0; c < data0->depth(); c++) {
-            for(int y = 0; y < data0->height(); y++) {
-                for(int x = 0; x < data0->width(); x++) {
-                    cout<<*data0->data(x, y, c)<<" ";
-                }
-                cout<<endl;
-            }
-            cout<<endl<<endl;
-        }
-    }
-    cout<<pool3_top[0]->name()<<endl;
-    for(int k = 0; k < pool3_top[0]->batch_size(); k++) {
-        data0 = pool3_top[0]->Data(k);
-        for(int c = 0; c < data0->depth(); c++) {
-            for(int y = 0; y < data0->height(); y++) {
-                for(int x = 0; x < data0->width(); x++) {
-                    cout<<*data0->data(x, y, c)<<" ";
-                }
-                cout<<endl;
-            }
-            cout<<endl<<endl;
-        }
-    }
-    cout<<conv4_top[0]->name()<<endl;
-    for(int k = 0; k < conv4_top[0]->batch_size(); k++) {
-        data0 = conv4_top[0]->Data(k);
-        for(int c = 0; c < data0->depth(); c++) {
-            for(int y = 0; y < data0->height(); y++) {
-                for(int x = 0; x < data0->width(); x++) {
-                    cout<<*data0->data(x, y, c)<<" ";
-                }
-                cout<<endl;
-            }
-            cout<<endl<<endl;
-        }
-    }
-    cout<<ip5_top[0]->name()<<endl;
-    for(int k = 0; k < ip5_top[0]->batch_size(); k++) {
-        data0 = ip5_top[0]->Data(k);
-        for(int c = 0; c < data0->depth(); c++) {
-            for(int y = 0; y < data0->height(); y++) {
-                for(int x = 0; x < data0->width(); x++) {
-                    cout<<*data0->data(x, y, c)<<" ";
-                }
-                cout<<endl;
-            }
-            cout<<endl<<endl;
-        }
-    }
+//        cout<<conv0_top[0]->name()<<endl;
+//        for(int k = 0; k < conv0_top[0]->batch_size(); k++) {
+//            data0 = conv0_top[0]->Data(k);
+//            for(int c = 0; c < data0->depth(); c++) {
+//                for(int y = 0; y < data0->height(); y++) {
+//                    for(int x = 0; x < data0->width(); x++) {
+//                        cout<<*data0->data(x, y, c)<<" ";
+//                    }
+//                    cout<<endl;
+//                }
+//                cout<<endl<<endl;
+//            }
+//        }
+//        cout<<pool1_top[0]->name()<<endl;
+//        for(int k = 0; k < pool1_top[0]->batch_size(); k++) {
+//            data0 = pool1_top[0]->Data(k);
+//            for(int c = 0; c < data0->depth(); c++) {
+//                for(int y = 0; y < data0->height(); y++) {
+//                    for(int x = 0; x < data0->width(); x++) {
+//                        cout<<*data0->data(x, y, c)<<" ";
+//                    }
+//                    cout<<endl;
+//                }
+//                cout<<endl<<endl;
+//            }
+//        }
+//        cout<<conv2_top[0]->name()<<endl;
+//        for(int k = 0; k < conv2_top[0]->batch_size(); k++) {
+//            data0 = conv2_top[0]->Data(k);
+//            for(int c = 0; c < data0->depth(); c++) {
+//                for(int y = 0; y < data0->height(); y++) {
+//                    for(int x = 0; x < data0->width(); x++) {
+//                        cout<<*data0->data(x, y, c)<<" ";
+//                    }
+//                    cout<<endl;
+//                }
+//                cout<<endl<<endl;
+//            }
+//        }
+//        cout<<pool3_top[0]->name()<<endl;
+//        for(int k = 0; k < pool3_top[0]->batch_size(); k++) {
+//            data0 = pool3_top[0]->Data(k);
+//            for(int c = 0; c < data0->depth(); c++) {
+//                for(int y = 0; y < data0->height(); y++) {
+//                    for(int x = 0; x < data0->width(); x++) {
+//                        cout<<*data0->data(x, y, c)<<" ";
+//                    }
+//                    cout<<endl;
+//                }
+//                cout<<endl<<endl;
+//            }
+//        }
+//        cout<<conv4_top[0]->name()<<endl;
+//        for(int k = 0; k < conv4_top[0]->batch_size(); k++) {
+//            data0 = conv4_top[0]->Data(k);
+//            for(int c = 0; c < data0->depth(); c++) {
+//                for(int y = 0; y < data0->height(); y++) {
+//                    for(int x = 0; x < data0->width(); x++) {
+//                        cout<<*data0->data(x, y, c)<<" ";
+//                    }
+//                    cout<<endl;
+//                }
+//                cout<<endl<<endl;
+//            }
+//        }
+//        cout<<ip5_top[0]->name()<<endl;
+//        for(int k = 0; k < ip5_top[0]->batch_size(); k++) {
+//            data0 = ip5_top[0]->Data(k);
+//            for(int c = 0; c < data0->depth(); c++) {
+//                for(int y = 0; y < data0->height(); y++) {
+//                    for(int x = 0; x < data0->width(); x++) {
+//                        cout<<*data0->data(x, y, c)<<" ";
+//                    }
+//                    cout<<endl;
+//                }
+//                cout<<endl<<endl;
+//            }
+//        }
+    //-
+    LeNet.Backward();
 
+    if(i%200 == 0) {
+        cout<<"WeightsToHDF5"<<endl;
+        LeNet.WeightsToHDF5("lenet" + to_string(i) + ".hdf5");
+    }
+}
+    cout<<"WeightsToHDF5"<<endl;
+    LeNet.WeightsToHDF5("lenet2.hdf5");
+
+//    cout<<conv0_bottom[0]->name()<<endl;
+//    for(int k = 0; k < conv0_bottom[0]->batch_size(); k++) {
+//        data0 = conv0_bottom[0]->Data(k);
+//        for(int c = 0; c < data0->depth(); c++) {
+//            for(int y = 0; y < data0->height(); y++) {
+//                for(int x = 0; x < data0->width(); x++) {
+//                    cout<<*data0->data(x, y, c)<<" ";
+//                }
+//                cout<<endl;
+//            }
+//            cout<<endl<<endl;
+//        }
+//    }
+
+//    cout<<conv0_top[0]->name()<<endl;
+//    for(int k = 0; k < conv0_top[0]->batch_size(); k++) {
+//        data0 = conv0_top[0]->Data(k);
+//        for(int c = 0; c < data0->depth(); c++) {
+//            for(int y = 0; y < data0->height(); y++) {
+//                for(int x = 0; x < data0->width(); x++) {
+//                    cout<<*data0->data(x, y, c)<<" ";
+//                }
+//                cout<<endl;
+//            }
+//            cout<<endl<<endl;
+//        }
+//    }
+//    cout<<pool1_top[0]->name()<<endl;
+//    for(int k = 0; k < pool1_top[0]->batch_size(); k++) {
+//        data0 = pool1_top[0]->Data(k);
+//        for(int c = 0; c < data0->depth(); c++) {
+//            for(int y = 0; y < data0->height(); y++) {
+//                for(int x = 0; x < data0->width(); x++) {
+//                    cout<<*data0->data(x, y, c)<<" ";
+//                }
+//                cout<<endl;
+//            }
+//            cout<<endl<<endl;
+//        }
+//    }
+//    cout<<conv2_top[0]->name()<<endl;
+//    for(int k = 0; k < conv2_top[0]->batch_size(); k++) {
+//        data0 = conv2_top[0]->Data(k);
+//        for(int c = 0; c < data0->depth(); c++) {
+//            for(int y = 0; y < data0->height(); y++) {
+//                for(int x = 0; x < data0->width(); x++) {
+//                    cout<<*data0->data(x, y, c)<<" ";
+//                }
+//                cout<<endl;
+//            }
+//            cout<<endl<<endl;
+//        }
+//    }
+//    cout<<pool3_top[0]->name()<<endl;
+//    for(int k = 0; k < pool3_top[0]->batch_size(); k++) {
+//        data0 = pool3_top[0]->Data(k);
+//        for(int c = 0; c < data0->depth(); c++) {
+//            for(int y = 0; y < data0->height(); y++) {
+//                for(int x = 0; x < data0->width(); x++) {
+//                    cout<<*data0->data(x, y, c)<<" ";
+//                }
+//                cout<<endl;
+//            }
+//            cout<<endl<<endl;
+//        }
+//    }
+//    cout<<conv4_top[0]->name()<<endl;
+//    for(int k = 0; k < conv4_top[0]->batch_size(); k++) {
+//        data0 = conv4_top[0]->Data(k);
+//        for(int c = 0; c < data0->depth(); c++) {
+//            for(int y = 0; y < data0->height(); y++) {
+//                for(int x = 0; x < data0->width(); x++) {
+//                    cout<<*data0->data(x, y, c)<<" ";
+//                }
+//                cout<<endl;
+//            }
+//            cout<<endl<<endl;
+//        }
+//    }
+//    cout<<ip5_top[0]->name()<<endl;
+//    for(int k = 0; k < ip5_top[0]->batch_size(); k++) {
+//        data0 = ip5_top[0]->Data(k);
+//        for(int c = 0; c < data0->depth(); c++) {
+//            for(int y = 0; y < data0->height(); y++) {
+//                for(int x = 0; x < data0->width(); x++) {
+//                    cout<<*data0->data(x, y, c)<<" ";
+//                }
+//                cout<<endl;
+//            }
+//            cout<<endl<<endl;
+//        }
+//    }
+//    cout<<softmax_top[0]->name()<<endl;
+//    for(int k = 0; k < softmax_top[0]->batch_size(); k++) {
+//        data0 = softmax_top[0]->Data(k);
+//        for(int c = 0; c < data0->depth(); c++) {
+//            for(int y = 0; y < data0->height(); y++) {
+//                for(int x = 0; x < data0->width(); x++) {
+//                    cout<<*data0->data(x, y, c)<<" ";
+//                }
+//                cout<<endl;
+//            }
+//            cout<<endl<<endl;
+//        }
+//    }
+
+//    cout<<"---------------------Backward----------------------"<<endl;
+//    LeNet.Backward();
+
+//        cout<<"WeightsToHDF5"<<endl;
+//        LeNet.WeightsToHDF5("cnn_weights_3.hdf5");
+
+//    cout<<ip5_top[0]->name()<<endl;
+//    for(int k = 0; k < ip5_top[0]->batch_size(); k++) {
+//        data0 = ip5_top[0]->Data(k);
+//        for(int c = 0; c < data0->depth(); c++) {
+//            for(int y = 0; y < data0->height(); y++) {
+//                for(int x = 0; x < data0->width(); x++) {
+//                    cout<<*data0->data(x, y, c)<<" ";
+//                }
+//                cout<<endl;
+//            }
+//            cout<<endl<<endl;
+//        }
+//    }
+//    cout<<conv4_top[0]->name()<<endl;
+//    for(int k = 0; k < conv4_top[0]->batch_size(); k++) {
+//        data0 = conv4_top[0]->Data(k);
+//        for(int c = 0; c < data0->depth(); c++) {
+//            for(int y = 0; y < data0->height(); y++) {
+//                for(int x = 0; x < data0->width(); x++) {
+//                    cout<<*data0->data(x, y, c)<<" ";
+//                }
+//                cout<<endl;
+//            }
+//            cout<<endl<<endl;
+//        }
+//    }
+//    cout<<pool3_top[0]->name()<<endl;
+//    for(int k = 0; k < pool3_top[0]->batch_size(); k++) {
+//        data0 = pool3_top[0]->Data(k);
+//        for(int c = 0; c < data0->depth(); c++) {
+//            for(int y = 0; y < data0->height(); y++) {
+//                for(int x = 0; x < data0->width(); x++) {
+//                    cout<<*data0->data(x, y, c)<<" ";
+//                }
+//                cout<<endl;
+//            }
+//            cout<<endl<<endl;
+//        }
+//    }
+//    cout<<conv2_top[0]->name()<<endl;
+//    for(int k = 0; k < conv2_top[0]->batch_size(); k++) {
+//        data0 = conv2_top[0]->Data(k);
+//        for(int c = 0; c < data0->depth(); c++) {
+//            for(int y = 0; y < data0->height(); y++) {
+//                for(int x = 0; x < data0->width(); x++) {
+//                    cout<<*data0->data(x, y, c)<<" ";
+//                }
+//                cout<<endl;
+//            }
+//            cout<<endl<<endl;
+//        }
+//    }
+//    cout<<pool1_top[0]->name()<<endl;
+//    for(int k = 0; k < pool1_top[0]->batch_size(); k++) {
+//        data0 = pool1_top[0]->Data(k);
+//        for(int c = 0; c < data0->depth(); c++) {
+//            for(int y = 0; y < data0->height(); y++) {
+//                for(int x = 0; x < data0->width(); x++) {
+//                    cout<<*data0->data(x, y, c)<<" ";
+//                }
+//                cout<<endl;
+//            }
+//            cout<<endl<<endl;
+//        }
+//    }
+//    cout<<conv0_top[0]->name()<<endl;
+//    for(int k = 0; k < conv0_top[0]->batch_size(); k++) {
+//        data0 = conv0_top[0]->Data(k);
+//        for(int c = 0; c < data0->depth(); c++) {
+//            for(int y = 0; y < data0->height(); y++) {
+//                for(int x = 0; x < data0->width(); x++) {
+//                    cout<<*data0->data(x, y, c)<<" ";
+//                }
+//                cout<<endl;
+//            }
+//            cout<<endl<<endl;
+//        }
+//    }
+//    cout<<conv0_bottom[0]->name()<<endl;
+//    for(int k = 0; k < conv0_bottom[0]->batch_size(); k++) {
+//        data0 = conv0_bottom[0]->Data(k);
+//        for(int c = 0; c < data0->depth(); c++) {
+//            for(int y = 0; y < data0->height(); y++) {
+//                for(int x = 0; x < data0->width(); x++) {
+//                    cout<<*data0->data(x, y, c)<<" ";
+//                }
+//                cout<<endl;
+//            }
+//            cout<<endl<<endl;
+//        }
+//    }
 
 
 //    Net<float> edge_detector;

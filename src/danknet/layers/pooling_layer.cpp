@@ -73,10 +73,22 @@ PoolingLayer<Dtype>::Backward() {
         for(int depth = 0; depth < top_shape.depth(); depth++) {
             for(int out_x = 0, inp_x = 0/*- pad_w_*/; out_x < top_shape.width(); out_x++,  inp_x += stride_w_ ) {
                 for(int out_y = 0, inp_y = 0/*- pad_h_*/; out_y < top_shape.height(); out_y++, inp_y += stride_h_) {
+                    Dtype val = numeric_limits<Dtype>::min();
                     //--------max pooling-----------
                     for(int x = 0; x < kernel_w_; x++) {
                         for(int y = 0; y < kernel_h_; y++) {
-                            *bottom_data->data(inp_x + x, inp_y + y, depth) = *top_data->data(out_x, out_y, depth);
+                            if(*bottom_data->data(inp_x + x, inp_y + y, depth) > val) {
+                                val = *bottom_data->data(inp_x + x, inp_y + y, depth);
+                            }
+                        }
+                    }
+                    for(int x = 0; x < kernel_w_; x++) {
+                        for(int y = 0; y < kernel_h_; y++) {
+                            *bottom_data->data(inp_x + x, inp_y + y, depth) = *top_data->data(inp_x + x, inp_y + y, depth);
+//                            if(*bottom_data->data(inp_x + x, inp_y + y, depth) != val) {
+//                                *bottom_data->data(inp_x + x, inp_y + y, depth) = 0;
+//                            } else {
+//                            }
                         }
                     }
                 }

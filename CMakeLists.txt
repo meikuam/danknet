@@ -42,6 +42,8 @@ set(SOURCES
     src/danknet/layers/fully_connected_layer.cpp
     src/danknet/layers/pooling_layer.cpp
     src/danknet/layers/loss_layer.cpp
+    src/danknet/layers/softmax_layer.cpp
+
 )
 set(HEADERS
     include/danknet/data.h
@@ -58,6 +60,7 @@ set(HEADERS
     include/danknet/layers/fully_connected_layer.h
     include/danknet/layers/pooling_layer.h
     include/danknet/layers/loss_layer.h
+    include/danknet/layers/softmax_layer.h
 )
 
 add_executable(${project_name} ${SOURCES} ${HEADERS})
