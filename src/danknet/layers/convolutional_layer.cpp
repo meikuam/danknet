@@ -113,8 +113,6 @@ ConvolutionalLayer<Dtype>::Backward() {
         // weights_diff = top * bottom
 
         //-------------------kernel-------------------
-        // цикл по ядрам свертки или по выходным картам признаков
-
         // calc weights diffs
         for(int kernel = 0; kernel < top_shape.depth(); kernel++) {
             Data3d<Dtype>* weights_diff_data = weights_diff->Data(kernel);
@@ -157,7 +155,6 @@ ConvolutionalLayer<Dtype>::Backward() {
             for(int depth = 0; depth < weights_shape.depth(); depth++) {
                 for(int x = 0; x < weights_shape.width(); x++) {
                     for(int y = 0; y < weights_shape.height(); y++) {
-                        // anti gradient ????????
                         *weights_data->data(x,y, depth) -= *weights_diff_data->data(x, y, depth);
                     }
                 }
