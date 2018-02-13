@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     ip0_bottom.push_back(&data);
     cout<<"AddLayer"<<endl;
 
-    double lr_rate = 0.04;
+    double lr_rate = 0.05;
 
 //    LeNet.AddLayer(new ConvolutionalLayer<double>(7, 7, 3, 3, 1, 1, 0, 0, lr_rate, "conv0", conv0_bottom, conv0_top));
 //    LeNet.AddLayer(new PoolingLayer<double>(2, 2, 2, 2, 0, 0, "pool1", conv0_top, pool1_top));
@@ -45,16 +45,15 @@ int main(int argc, char *argv[])
 //    LeNet.AddLayer(new ConvolutionalLayer<double>(1, 1, 10, 3, 1, 1, 0, 0, lr_rate, "ip5", conv4_top, ip5_top));
 //    ip5_top.push_back(&label);
 //    LeNet.AddLayer(new LossLayer<double>(lr_rate, "loss", ip5_top, softmax_top));
-    LeNet.AddLayer(new ConvolutionalLayer<double>(1, 1, 2, 500, 1, 1, 0, 0, lr_rate, "ip0", ip0_bottom, ip0_top));
-    LeNet.AddLayer(new ConvolutionalLayer<double>(1, 1, 500, 100, 1, 1, 0, 0, lr_rate, "ip1", ip0_top, ip1_top));
-    LeNet.AddLayer(new ConvolutionalLayer<double>(1, 1, 100, 2, 1, 1, 0, 0, lr_rate, "ip2", ip1_top, ip2_top));
-    ip2_top.push_back(&label);
-    LeNet.AddLayer(new LossLayer<double>(lr_rate, "loss", ip2_top, softmax_top));
+    LeNet.AddLayer(new ConvolutionalLayer<double>(1, 1, 2, 2000, 1, 1, 0, 0, lr_rate, "ip0", ip0_bottom, ip0_top));
+    LeNet.AddLayer(new ConvolutionalLayer<double>(1, 1, 2000, 2, 1, 1, 0, 0, lr_rate, "ip2", ip0_top, ip1_top));
+    ip1_top.push_back(&label);
+    LeNet.AddLayer(new LossLayer<double>(lr_rate, "loss", ip1_top, softmax_top));
 
 //    cout<<"WeightsFromHDF5"<<endl;
-    LeNet.WeightsFromHDF5("lenet7000.hdf5");
+//    LeNet.WeightsFromHDF5("lenet7000.hdf5");
     cout<<"---------------------Forward----------------------"<<endl;
-    for(int i = 0, k = 0; i < 8000; i++, k++) {
+    for(int i = 0, k = 0; i < 1000; i++, k++) {
         if(i%2 == 0 ){
             *label.Data(0)->data(0, 0, 0) = 0;
             *label.Data(0)->data(0, 0, 1) = 1;

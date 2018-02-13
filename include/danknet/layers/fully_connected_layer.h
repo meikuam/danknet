@@ -2,6 +2,8 @@
 #define FULLY_CONNECTED_LAYER_H
 
 #include "layer.h"
+#include <random>
+#include <chrono>
 
 namespace danknet {
 
@@ -11,6 +13,7 @@ template <typename Dtype>
 class FullyConectedLayer : public Layer<Dtype> {
  public:
   explicit FullyConectedLayer(int units,
+                              Dtype lr_rate,
                               string name,
                               vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
 
@@ -18,9 +21,14 @@ class FullyConectedLayer : public Layer<Dtype> {
 
     virtual vector<Blob<Dtype>*>* Forward();
     virtual vector<Blob<Dtype>*>* Backward();
-
+    void initWeights();
 private:
     int units_;
+
+    Blob<Dtype>*         weights_diff_;
+
+    std::default_random_engine generator;
+    std::uniform_real_distribution<Dtype> distribution;
 };
 
 } // namespace danknet

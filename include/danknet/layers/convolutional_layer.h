@@ -31,7 +31,6 @@ private:
     int pad_h_, pad_w_;
     int kernels_, depth_;
 
-    Dtype lr_rate_;
     Blob<Dtype>*         weights_diff_;
 
     std::default_random_engine generator;

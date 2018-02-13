@@ -11,7 +11,7 @@ ConvolutionalLayer<Dtype>::ConvolutionalLayer(int kernel_w, int kernel_h,
                             string name,
                             vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
       : Layer<Dtype>(name, bottom, top),
-        distribution(-0.01,0.01),
+        distribution(-0.1,0.1),
         generator(std::chrono::system_clock::now().time_since_epoch().count())
 {
       kernel_w_     = kernel_w;
@@ -146,7 +146,16 @@ ConvolutionalLayer<Dtype>::Backward() {
                 }
             }
         }
-
+        //-------------ReLU derivation----------------
+        for(int depth = 0; depth < bottom_shape.depth(); depth++) {
+            for(int bottom_x = 0; bottom_x < bottom_shape.width(); bottom_x ++) {
+                for(int bottom_y = 0; bottom_y < bottom_shape.height(); bottom_y ++) {
+                    if(*bottom_data->data(bottom_x, bottom_y , depth) <= 0 || isnan(*bottom_data->data(bottom_x, bottom_y , depth))) {
+                        *bottom_data->data(bottom_x, bottom_y , depth) = 0;
+                    }
+                }
+            }
+        }
         // update weights
         for(int kernel = 0; kernel < weights_shape.batch(); kernel++) {
             Data3d<Dtype>* weights_data = weights->Data(kernel);
@@ -155,7 +164,9 @@ ConvolutionalLayer<Dtype>::Backward() {
             for(int depth = 0; depth < weights_shape.depth(); depth++) {
                 for(int x = 0; x < weights_shape.width(); x++) {
                     for(int y = 0; y < weights_shape.height(); y++) {
-                        *weights_data->data(x,y, depth) -= *weights_diff_data->data(x, y, depth);
+                        if(!isnan(*weights_diff_data->data(x, y, depth))) {
+                            *weights_data->data(x,y, depth) -= *weights_diff_data->data(x, y, depth);
+                        }
                     }
                 }
             }
