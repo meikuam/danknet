@@ -16,6 +16,7 @@ class ConvolutionalLayer : public Layer<Dtype> {
                               int depth, int kernels,
                               int stride_w, int stride_h,
                               int pad_w, int pad_h,
+                              Dtype lr_rate,
                               string name,
                               vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
 
@@ -30,6 +31,8 @@ private:
     int pad_h_, pad_w_;
     int kernels_, depth_;
 
+    Dtype lr_rate_;
+    Blob<Dtype>*         weights_diff_;
 
     std::default_random_engine generator;
     std::uniform_real_distribution<Dtype> distribution;

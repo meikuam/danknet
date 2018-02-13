@@ -9,8 +9,6 @@ namespace danknet {
 
 template <typename Dtype>
 class LossLayer : public Layer<Dtype> {
-private:
-    Dtype lr_rate_;
  public:
   explicit LossLayer(Dtype lr_rate,
                      string name,

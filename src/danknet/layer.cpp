@@ -8,11 +8,6 @@ Layer<Dtype>::Layer(string name,
                     vector<Blob<Dtype>*>& bottom,
                     vector<Blob<Dtype>*>& top) {
     name_ = name;
-//    bottom_ = bottom;
-//    for(int i = 0; i < bottom.size(); i++) {
-//        top_.push_back(new Blob<Dtype>(name_ + "_top", bottom_[i]->shape()));
-//    }
-//    top = top_;
 }
 
 

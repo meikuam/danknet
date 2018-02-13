@@ -52,6 +52,8 @@ protected:
     vector<Blob<Dtype>*> bottom_;
     Blob<Dtype>*         weights_;
 
+    Dtype                lr_rate_;
+
 public:
     explicit Layer(string name, vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
 
@@ -65,6 +67,7 @@ public:
     inline vector<Blob<Dtype>*>* top() { return &top_; }
     inline vector<Blob<Dtype>*>* bottom() { return &bottom_; }
     inline Blob<Dtype>*          weights(){ return weights_;}
+    inline void setLrRate(Dtype lr_rate) { lr_rate_ = lr_rate; }
 
 //    inline bool has_top_layers() { return top_layers_.size() > 0 ? true : false; }
 //    inline bool has_bottom_layers() { return top_layers_.size() > 0 ? true : false; }

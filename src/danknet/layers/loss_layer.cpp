@@ -9,7 +9,7 @@ LossLayer<Dtype>::LossLayer(Dtype lr_rate,
                             string name,
                             vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
     : Layer<Dtype>(name, bottom, top) {
-    lr_rate_ = lr_rate;
+    this->lr_rate_ = lr_rate;
     //-------------copy bottom vector-------------
     this->bottom_ = bottom;
 
@@ -46,18 +46,18 @@ LossLayer<Dtype>::Forward() {
         for(int k = 0; k < K; k++) {
             exps[k] = exps[k] / sum;
         }
-        int max_num = 0;
-        for(int k = 1; k < K; k++) {
-            if(exps[k] > exps[max_num]) {
-                max_num = k;
-            }
-        }
-        for(int k = 0; k < K; k++) {
-            if(k == max_num)
-                exps[k] = 1;
-            else
-                exps[k] = 0;
-        }
+//        int max_num = 0;
+//        for(int k = 1; k < K; k++) {
+//            if(exps[k] > exps[max_num]) {
+//                max_num = k;
+//            }
+//        }
+//        for(int k = 0; k < K; k++) {
+//            if(k == max_num)
+//                exps[k] = 1;
+//            else
+//                exps[k] = 0;
+//        }
         //loss  = 0.5 * sum((pred - labels)^2)
         Dtype loss = (Dtype)0;
         for(int k = 0; k < K; k++) {
@@ -111,7 +111,7 @@ LossLayer<Dtype>::Backward() {
 //        }
         //dE/dyk = - (pred_data(k) - labels(k))
         for(int k = 0; k < K; k++) {
-            *pred_data->data(0, 0, k) =  - (*labels_data->data(0,0,k) - exps[k]) * lr_rate_;
+            *pred_data->data(0, 0, k) =  - (*labels_data->data(0,0,k) - exps[k]) * this->lr_rate_;
             cout<<*pred_data->data(0, 0, k)<<" ";
         }
         cout<<endl;
