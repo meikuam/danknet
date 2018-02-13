@@ -87,31 +87,27 @@ LossLayer<Dtype>::Backward() {
         int K = pred_shape.depth();
         Dtype* exps = new Dtype[K];
         Dtype sum =  (Dtype)0;
+        cout<<"pred_data: ";
         for(int k = 0; k < K; k++) {
             cout<<*pred_data->data(0, 0, k)<<" ";
             exps[k] = exp(*pred_data->data(0, 0, k));
             sum += exps[k];
         }
+        cout<<endl<<"exps: ";
         for(int k = 0; k < K; k++) {
             exps[k] = exps[k] / sum;
-//                        cout<<exps[k]<<" ";
+            cout<<exps[k]<<" ";
         }
 
-//        int max_num = 0;
-//        for(int k = 1; k < K; k++) {
-//            if(exps[k] > exps[max_num]) {
-//                max_num = k;
-//            }
-//        }
-//        for(int k = 0; k < K; k++) {
-//            if(k == max_num)
-//                exps[k] = 1;
-//            else
-//                exps[k] = 0;
-//        }
+        cout<<endl<<"labels: ";
+        for(int k = 0; k < K; k++) {
+            cout<<*labels_data->data(0,0,k)<<" ";
+        }
+
+        cout<<endl<<"errors: ";
         //dE/dyk = - (pred_data(k) - labels(k))
         for(int k = 0; k < K; k++) {
-            *pred_data->data(0, 0, k) =  - (*labels_data->data(0,0,k) - exps[k]) * this->lr_rate_;
+            *pred_data->data(0, 0, k) =  - (exps[k] - *labels_data->data(0,0,k)) * this->lr_rate_;
             cout<<*pred_data->data(0, 0, k)<<" ";
         }
         cout<<endl;
