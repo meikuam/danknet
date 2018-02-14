@@ -116,9 +116,17 @@ Dtype* Data3d<Dtype>::data(int x, int y, int c) {
     // It is assumed that the data is stored as follows:
     //
     //     <- w_ ->
-    // ^  abc abc abc
-    // h_ abc abc abc
-    // v  abc abc abc
+    // ^  a   a   a
+    // h_ a   a   a
+    // v  a   a   a
+    //     <- w_ ->
+    // ^  b   b   b
+    // h_ b   b   b
+    // v  b   b   b
+    //     <- w_ ->
+    // ^  c   c   c
+    // h_ c   c   c
+    // v  c   c   c
     //
     //   abc - c_ elements
     if(x < 0 || x >= shape_.width() ||
@@ -126,7 +134,8 @@ Dtype* Data3d<Dtype>::data(int x, int y, int c) {
        c < 0 || c >= shape_.depth()) {
         return &zero_val;
     } else {
-        return &(data_[(y * shape_.width() + x) * shape_.depth() + c]);
+        return &(data_[c * shape_.width() * shape_.height() + (y * shape_.width() + x)]);
+//        return &(data_[(y * shape_.width() + x) * shape_.depth() + c]);
     }
 }
 
