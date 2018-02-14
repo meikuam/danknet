@@ -38,6 +38,7 @@ set(SOURCES
     src/danknet/layer.cpp
     src/danknet/solver.cpp
 
+    src/danknet/layers/image_data_layer.cpp
     src/danknet/layers/convolutional_layer.cpp
     src/danknet/layers/fully_connected_layer.cpp
     src/danknet/layers/pooling_layer.cpp
@@ -56,6 +57,7 @@ set(HEADERS
     include/danknet/solver.h
     include/danknet/params.h
 
+    include/danknet/layers/image_data_layer.h
     include/danknet/layers/convolutional_layer.h
     include/danknet/layers/fully_connected_layer.h
     include/danknet/layers/pooling_layer.h

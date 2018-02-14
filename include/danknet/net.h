@@ -20,11 +20,6 @@ using namespace H5;
 namespace danknet {
 
 
-enum Phase {
-    TRAIN,
-    TEST
-};
-
 
 template <typename Dtype>
 class Net {

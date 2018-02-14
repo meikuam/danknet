@@ -36,7 +36,13 @@ enum layertype {
     Fully_Connected_Layer,
     Pooling_Layer,
     Loss_Layer,
-    Softmax_Layer
+    Softmax_Layer,
+    Image_Data_Layer
+};
+
+enum Phase {
+    TRAIN,
+    TEST
 };
 
 
