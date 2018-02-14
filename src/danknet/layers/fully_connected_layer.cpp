@@ -4,7 +4,6 @@ namespace danknet {
 
 template<typename Dtype>
 FullyConnectedLayer<Dtype>::FullyConnectedLayer(int units,
-                                                Dtype lr_rate,
                                                 string name,
                                                 vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
     : Layer<Dtype>(name, bottom, top),
@@ -12,7 +11,6 @@ FullyConnectedLayer<Dtype>::FullyConnectedLayer(int units,
       generator(std::chrono::system_clock::now().time_since_epoch().count())
 {
       units_ = units;
-      this->lr_rate_= lr_rate;
       //-----------------Blob<Dtype>*---------------
 
       //-------------copy bottom vector-------------

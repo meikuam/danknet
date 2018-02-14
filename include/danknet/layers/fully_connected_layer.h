@@ -13,7 +13,6 @@ template <typename Dtype>
 class FullyConnectedLayer : public Layer<Dtype> {
  public:
   explicit FullyConnectedLayer(int units,
-                              Dtype lr_rate,
                               string name,
                               vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
 

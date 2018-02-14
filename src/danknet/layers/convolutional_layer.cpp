@@ -7,7 +7,6 @@ ConvolutionalLayer<Dtype>::ConvolutionalLayer(int kernel_w, int kernel_h,
                             int depth, int kernels,
                             int stride_w, int stride_h,
                             int pad_w, int pad_h,
-                            Dtype lr_rate,
                             string name,
                             vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
       : Layer<Dtype>(name, bottom, top),
@@ -22,7 +21,6 @@ ConvolutionalLayer<Dtype>::ConvolutionalLayer(int kernel_w, int kernel_h,
       stride_h_     = stride_h;
       pad_w_        = pad_w;
       pad_h_        = pad_h;
-      this->lr_rate_= lr_rate;
 
       //-----------------Blob<Dtype>*---------------
       //---------------create weights_--------------

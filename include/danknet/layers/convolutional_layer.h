@@ -16,7 +16,6 @@ class ConvolutionalLayer : public Layer<Dtype> {
                               int depth, int kernels,
                               int stride_w, int stride_h,
                               int pad_w, int pad_h,
-                              Dtype lr_rate,
                               string name,
                               vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
 

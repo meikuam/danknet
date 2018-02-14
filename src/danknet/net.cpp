@@ -17,6 +17,7 @@ void Net<Dtype>::Backward() {
     }
 }
 
+
 template<typename Dtype>
 void Net<Dtype>::WeightsFromHDF5(string filename) {
     H5File hdf5file(filename, H5F_ACC_RDONLY);
@@ -180,7 +181,6 @@ void Net<Dtype>::WeightsToHDF5(string filename) {
 
 template<typename Dtype>
 void Net<Dtype>::AddLayer(Layer<Dtype>* layer) {
-    //TODO: bottom_data_ / top_data_ creation
     layers_.push_back(layer);
 
 }

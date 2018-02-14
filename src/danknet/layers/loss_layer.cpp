@@ -3,11 +3,9 @@ namespace danknet {
 
 
 template<typename Dtype>
-LossLayer<Dtype>::LossLayer(Dtype lr_rate,
-                            string name,
+LossLayer<Dtype>::LossLayer(string name,
                             vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
     : Layer<Dtype>(name, bottom, top) {
-    this->lr_rate_ = lr_rate;
     //-------------copy bottom vector-------------
     this->bottom_ = bottom;
     //-------------create top vector--------------
