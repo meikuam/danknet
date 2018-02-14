@@ -121,7 +121,7 @@ ConvolutionalLayer<Dtype>::Backward() {
                     for(int top_y = 0, bottom_y = 0/*- pad_h_*/; top_y < top_shape.height(); top_y++, bottom_y += stride_h_) {
                         for(int x = 0; x < weights_shape.width(); x++) {
                             for(int y = 0; y < weights_shape.height(); y++) {
-                                *weights_diff_data->data(x, y, depth) += *top_data->data(top_y, top_x, kernel) * *bottom_data->data(bottom_x + x, bottom_y + y, depth) * lr_rate_;
+                                *weights_diff_data->data(x, y, depth) += *top_data->data(top_y, top_x, kernel) * *bottom_data->data(bottom_x + x, bottom_y + y, depth) * this->lr_rate_;
                             }
                         }
                     }

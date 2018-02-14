@@ -10,9 +10,9 @@ namespace danknet {
 //Fully connected layer (inner product layer)
 
 template <typename Dtype>
-class FullyConectedLayer : public Layer<Dtype> {
+class FullyConnectedLayer : public Layer<Dtype> {
  public:
-  explicit FullyConectedLayer(int units,
+  explicit FullyConnectedLayer(int units,
                               Dtype lr_rate,
                               string name,
                               vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
