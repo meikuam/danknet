@@ -10,7 +10,7 @@ ConvolutionalLayer<Dtype>::ConvolutionalLayer(int kernel_w, int kernel_h,
                             string name,
                             vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
       : Layer<Dtype>(name, bottom, top),
-        distribution(-0.1,0.1),
+        distribution(-0.007, 0.007),
         generator(std::chrono::system_clock::now().time_since_epoch().count())
 {
       kernel_w_     = kernel_w;
@@ -119,7 +119,7 @@ ConvolutionalLayer<Dtype>::Backward() {
                     for(int top_y = 0, bottom_y = 0/*- pad_h_*/; top_y < top_shape.height(); top_y++, bottom_y += stride_h_) {
                         for(int x = 0; x < weights_shape.width(); x++) {
                             for(int y = 0; y < weights_shape.height(); y++) {
-                                *weights_diff_data->data(x, y, depth) += *top_data->data(top_y, top_x, kernel) * *bottom_data->data(bottom_x + x, bottom_y + y, depth) * this->lr_rate_;
+                                *weights_diff_data->data(x, y, depth) += *top_data->data(top_y, top_x, kernel) * *bottom_data->data(bottom_x + x, bottom_y + y, depth);
                             }
                         }
                     }
@@ -163,7 +163,7 @@ ConvolutionalLayer<Dtype>::Backward() {
                 for(int x = 0; x < weights_shape.width(); x++) {
                     for(int y = 0; y < weights_shape.height(); y++) {
                         if(!isnan(*weights_diff_data->data(x, y, depth))) {
-                            *weights_data->data(x,y, depth) -= *weights_diff_data->data(x, y, depth);
+                            *weights_data->data(x,y, depth) -= (*weights_diff_data->data(x, y, depth) + *weights_data->data(x,y, depth) * this->weight_decay_) * this->lr_rate_;
                         }
                     }
                 }

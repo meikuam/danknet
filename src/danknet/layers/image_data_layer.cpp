@@ -48,6 +48,7 @@ ImageDataLayer<Dtype>::ImageDataLayer(int width, int height, int depth,
 
     ifstream test_file(test_path_);
     while(getline(test_file, line)) {
+        qline = QString::fromStdString(line);
         auto parts = qline.split(' ');
         test_data_.push_back(parts[0]);
         test_labels_.push_back(parts[1].toInt());
@@ -84,8 +85,8 @@ ImageDataLayer<Dtype>::Forward() {
     int label;
     QString path;
 
-    cout<<"ImageDataLayer: "<<this->name_<<endl;
-    cout<<"------------------Forward-------------------"<<endl;
+//    cout<<"ImageDataLayer: "<<this->name_<<endl;
+//    cout<<"------------------Forward-------------------"<<endl;
 
     //-------------------batch--------------------
     for(int batch = 0; batch < top_data->batch_size(); batch++) {
@@ -96,10 +97,10 @@ ImageDataLayer<Dtype>::Forward() {
                 current_train_image_ = 0;
             }
 
-            cout<<"phase_: TRAIN"<<endl;
-            cout<<"current_train_image_: "<<current_train_image_<<endl;
-            cout<<"label: "<<QString::number(train_labels_[current_train_image_]).toStdString()<<endl;
-            cout<<"path: "<<train_data_[current_train_image_].toStdString()<<endl;
+//            cout<<"phase_: TRAIN"<<endl;
+//            cout<<"current_train_image_: "<<current_train_image_<<endl;
+//            cout<<"label: "<<QString::number(train_labels_[current_train_image_]).toStdString()<<endl;
+//            cout<<"path: "<<train_data_[current_train_image_].toStdString()<<endl;
 
             label = train_labels_[current_train_image_];
             path = train_data_[current_train_image_];
@@ -110,10 +111,10 @@ ImageDataLayer<Dtype>::Forward() {
                 current_test_image_ = 0;
             }
 
-            cout<<"phase_: TEST"<<endl;
-            cout<<"current_test_image_: "<<current_test_image_<<endl;
-            cout<<"label: "<<QString::number(test_labels_[current_test_image_]).toStdString()<<endl;
-            cout<<"path: "<<test_data_[current_test_image_].toStdString()<<endl;
+//            cout<<"phase_: TEST"<<endl;
+//            cout<<"current_test_image_: "<<current_test_image_<<endl;
+//            cout<<"label: "<<QString::number(test_labels_[current_test_image_]).toStdString()<<endl;
+//            cout<<"path: "<<test_data_[current_test_image_].toStdString()<<endl;
 
             label = test_labels_[current_test_image_];
             path = test_data_[current_test_image_];
@@ -124,7 +125,6 @@ ImageDataLayer<Dtype>::Forward() {
             *top_labels->data(batch, 0, 0, i) = (i == label) ? 1 : 0;
         }
         *top_data->Data(batch) = QImage(path);
-
 
 //        cout<<"top_data width:"<<top_data->width()<<endl;
 //        cout<<"top_data height:"<<top_data->height()<<endl;

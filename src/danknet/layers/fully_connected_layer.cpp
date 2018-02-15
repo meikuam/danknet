@@ -7,7 +7,7 @@ FullyConnectedLayer<Dtype>::FullyConnectedLayer(int units,
                                                 string name,
                                                 vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
     : Layer<Dtype>(name, bottom, top),
-      distribution(-0.1,0.1),
+      distribution(-0.001,0.001),
       generator(std::chrono::system_clock::now().time_since_epoch().count())
 {
       units_ = units;
@@ -52,6 +52,10 @@ FullyConnectedLayer<Dtype>::Forward() {
             for(int bottom_unit = 0; bottom_unit < bottom_units; bottom_unit++) {
                 top_ptr[top_unit] += bottom_ptr[bottom_unit] * weights_ptr[bottom_unit];
             }
+            //-------------ReLU activation----------------
+            if(top_ptr[top_unit] <= 0) {
+                top_ptr[top_unit] = 0;
+            }
         }
 
     }
@@ -85,7 +89,7 @@ FullyConnectedLayer<Dtype>::Backward() {
             Dtype* top_ptr = top_data->data();
 
             for(int bottom_unit = 0; bottom_unit < bottom_units; bottom_unit++) {
-                weights_diff_ptr[bottom_unit] += top_ptr[top_unit] * bottom_ptr[bottom_unit] * this->lr_rate_;
+                weights_diff_ptr[bottom_unit] += top_ptr[top_unit] * bottom_ptr[bottom_unit];
             }
         }
         // calc error
@@ -113,7 +117,7 @@ FullyConnectedLayer<Dtype>::Backward() {
 
             for(int bottom_unit = 0; bottom_unit < bottom_units; bottom_unit++) {
                 if(!isnan(weights_diff_ptr[bottom_unit])) {
-                    weights_ptr[bottom_unit] -= weights_diff_ptr[bottom_unit];
+                    weights_ptr[bottom_unit] -= (weights_diff_ptr[bottom_unit] + weights_ptr[bottom_unit] * this->weight_decay_) *this->lr_rate_;
                 }
             }
         }
