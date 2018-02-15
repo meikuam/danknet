@@ -126,10 +126,10 @@ ImageDataLayer<Dtype>::Forward() {
         *top_data->Data(batch) = QImage(path);
 
 
-        cout<<"top_data width:"<<top_data->width()<<endl;
-        cout<<"top_data height:"<<top_data->height()<<endl;
-        cout<<"top_data depth:"<<top_data->depth()<<endl;
-        cout<<"top_data batch:"<<top_data->batch_size()<<endl;
+//        cout<<"top_data width:"<<top_data->width()<<endl;
+//        cout<<"top_data height:"<<top_data->height()<<endl;
+//        cout<<"top_data depth:"<<top_data->depth()<<endl;
+//        cout<<"top_data batch:"<<top_data->batch_size()<<endl;
     }
     return &this->top_;
 }
