@@ -5,7 +5,10 @@
 
 #include <random>
 #include <chrono>
+#include <fstream>
 
+#include <iostream>
+using namespace std;
 namespace danknet {
 
 //Convolutional layer
@@ -29,10 +32,10 @@ private:
     string  train_path_,
             test_path_;
 
-    vector<string> train_data_;
-    vector<string> test_data_;
+    vector<QString> train_data_;
+    vector<QString> test_data_;
     vector<int> train_labels_;
-    vector<int> test_test_;
+    vector<int> test_labels_;
 
     int width_,
         height_,
@@ -40,10 +43,11 @@ private:
         labels_,
         batches_;
 
-    int current_image;
+    int current_train_image_,
+        current_test_image_;
 
-    int train_images,
-        test_images;
+    int train_images_,
+        test_images_;
 
 //    std::default_random_engine generator;
 //    std::uniform_real_distribution<Dtype> distribution;

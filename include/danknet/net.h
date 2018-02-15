@@ -50,14 +50,14 @@ public:
     inline Phase phase() { return phase_; }
     inline void phase(Phase phase) {
         phase_ = phase;
-        for(int i = 0; i < layers_->size(); i++) {
+        for(int i = 0; i < layers_.size(); i++) {
             layers_[i]->phase(phase_);
         }
     }
 
     inline void lr_rate(Dtype lr_rate) {
         lr_rate_ = lr_rate;
-        for(int i = 0; i < layers_->size(); i++) {
+        for(int i = 0; i < layers_.size(); i++) {
             layers_[i]->lr_rate(lr_rate_);
         }
     }
@@ -66,7 +66,7 @@ public:
     inline Dtype weight_decay() {return weight_decay_;}
     inline void weight_decay(Dtype weight_decay) {
         weight_decay_ = weight_decay;
-        for(int i = 0; i < layers_->size(); i++) {
+        for(int i = 0; i < layers_.size(); i++) {
             layers_[i]->weight_decay(weight_decay_);
         }
     }

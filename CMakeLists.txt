@@ -32,7 +32,6 @@ include_directories(
 
 
 set(SOURCES
-    main.cpp
 
     src/danknet/net.cpp
     src/danknet/layer.cpp
@@ -48,6 +47,7 @@ set(SOURCES
 )
 set(HEADERS
     include/danknet/data.h
+    include/danknet/data2d.h
 
     include/danknet/danknet.h
     include/danknet/common.h
@@ -65,5 +65,11 @@ set(HEADERS
     include/danknet/layers/softmax_layer.h
 )
 
-add_executable(${project_name} ${SOURCES} ${HEADERS})
+#main project
+add_executable(${project_name} main.cpp ${SOURCES} ${HEADERS})
 target_link_libraries(${project_name} Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES}) #${OpenCV_LIBS})
+
+#xor project
+add_executable(xor xor.cpp ${SOURCES} ${HEADERS})
+target_link_libraries(xor Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
+

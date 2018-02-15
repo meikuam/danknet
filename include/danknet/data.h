@@ -4,6 +4,8 @@
 #include <QImage>
 #include <string.h>
 
+#include "data2d.h"
+
 using namespace std;
 
 //------------------Shape---------------------
@@ -41,6 +43,14 @@ public:
     inline int batch()  { return batch_; }
 
     inline int dims()   { return dims_; }
+
+    inline bool operator==(const Shape& rhs){ return  width_ == rhs.width_ &&
+                                                                        height_ == rhs.height_ &&
+                                                                        depth_ == rhs.depth_ &&
+                                                                        batch_ == rhs.batch_ &&
+                                                                        dims_ == rhs.dims_;
+                                                              }
+    inline bool operator!=(const Shape& rhs){ return !(*this == rhs); }
 };
 
 
@@ -57,9 +67,22 @@ public:
     Data3d(Shape shape);
 
     // copy constructor
-    Data3d(const Data3d &data);
+    Data3d(const Data3d& data);
+
     // assignment operator
+    // Data3d = Data3d
     Data3d& operator = (const Data3d& data);
+
+    template<typename Btype>
+    Data3d& operator = (const Data3d<Btype>& data);
+
+    //Data3d = Data2d
+    template<typename Btype>
+    Data3d& operator = (const Data2d<Btype>& data);
+
+    //Data3d = QImage
+    Data3d& operator = (const QImage& data);
+
     Dtype* data(int x, int y, int c);
     void setToZero();
     inline Dtype* data()                    { return data_; }
@@ -75,16 +98,19 @@ public:
 
 //------------------Data3d--------------------
 //--------------implementation----------------
+//----------------constructor-----------------
 template<typename Dtype>
 Data3d<Dtype>::Data3d() {
     shape_ = Shape();
 }
+
 
 template<typename Dtype>
 Data3d<Dtype>::Data3d(Shape shape) {
     shape_      = Shape(shape.width(), shape.height(), shape.depth());
     data_       = new Dtype[shape_.width() * shape_.height() * shape_.depth()];
 }
+
 
 template<typename Dtype>
 Data3d<Dtype>::Data3d(int w, int h, int c) {
@@ -93,8 +119,8 @@ Data3d<Dtype>::Data3d(int w, int h, int c) {
 }
 
 
+//--------------copy constructor--------------
 //TODO: different data types are not supported
-// copy constructor
 template<typename Dtype>
 Data3d<Dtype>::Data3d(const Data3d<Dtype> &data) {
     shape_      = data.shape_;
@@ -103,13 +129,91 @@ Data3d<Dtype>::Data3d(const Data3d<Dtype> &data) {
     memcpy(data_, data.data_, shape_.width() * shape_.height() * shape_.depth() * sizeof(Dtype));
 }
 
-//TODO: different data types are not supported
-// assignment operator
+
+//------------assignment operator-------------
+//--------------Data3d = Data3d---------------
 template<typename Dtype>
 Data3d<Dtype>& Data3d<Dtype>::operator = (const Data3d<Dtype>& data) {
+    Shape data_shape = Shape(data.width(), data.height(), data.depth());
+    if(shape_ != data_shape) {
+        shape_ = data_shape;
+        delete data_;
+        data_ = new Dtype[shape_.width() * shape_.height() * shape_.depth()];
+    }
     shape_      = data.shape_;
-    data_       = data.data_;
+    *data_      = *data.data_;
 }
+
+
+template<typename Dtype>
+template<typename Btype>
+Data3d<Dtype>& Data3d<Dtype>::operator = (const Data3d<Btype>& data) {
+    Shape data_shape = Shape(data.width(), data.height(), data.depth());
+    if(shape_ != data_shape) {
+        shape_ = data_shape;
+        delete data_;
+        data_ = new Dtype[shape_.width() * shape_.height() * shape_.depth()];
+    }
+    int w = shape_.width();
+    int h = shape_.height();
+    int d = shape_.depth();
+
+    for(int x = 0; x < w; x++) {
+        for(int y = 0; y < h; y++) {
+            for(int c = 0; c < d; c++) {
+                *data(x, y, c) = (Dtype)(*data(x, y, c));
+            }
+        }
+    }
+}
+
+
+//--------------Data3d = QImage---------------
+template<typename Dtype>
+Data3d<Dtype>& Data3d<Dtype>::operator = (const QImage& data) {
+    Shape data_shape = Shape(data.width(), data.height(), data.depth());
+    if(shape_ != data_shape) {
+        shape_ = data_shape;
+        delete data_;
+        data_ = new Dtype[shape_.width() * shape_.height() * shape_.depth()];
+    }
+    int w = shape_.width();
+    int h = shape_.height();
+    int d = shape_.depth();
+    for(int y = 0; y < h; y++) {
+        const uint8_t* data_ptr = data.scanLine(y);
+        for(int x = 0; x < w; x++) {
+            for(int c = 0; c < d; c++) {
+                data_[c * w * h + (y * w + x)] = (Dtype)(data_ptr[x * d + c]);
+            }
+        }
+    }
+}
+
+
+//--------------Data3d = Data2d---------------
+template<typename Dtype>
+template<typename Btype>
+Data3d<Dtype>& Data3d<Dtype>::operator = (const Data2d<Btype>& data) {
+    Shape data_shape = Shape(data.width(), data.height(), data.depth());
+    if(shape_ != data_shape) {
+        shape_ = data_shape;
+        //TODO: check memory leak
+        data_ = new Dtype[shape_.width() * shape_.height() * shape_.depth()];
+    }
+    int w = shape_.width();
+    int h = shape_.height();
+    int d = shape_.depth();
+
+    for(int x = 0; x < w; x++) {
+        for(int y = 0; y < h; y++) {
+            for(int c = 0; c < d; c++) {
+                *data(x, y, c) = (Dtype)(*data(x, y, c));
+            }
+        }
+    }
+}
+
 
 template<typename Dtype>
 Dtype* Data3d<Dtype>::data(int x, int y, int c) {
