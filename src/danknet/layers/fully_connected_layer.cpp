@@ -7,7 +7,7 @@ FullyConnectedLayer<Dtype>::FullyConnectedLayer(int units,
                                                 string name,
                                                 vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
     : Layer<Dtype>(name, bottom, top),
-      distribution(-0.001,0.001),
+      distribution(-1, 1),
       generator(std::chrono::system_clock::now().time_since_epoch().count())
 {
       units_ = units;
@@ -132,12 +132,12 @@ void
 FullyConnectedLayer<Dtype>::initWeights() {
     Blob<Dtype>* weights = this->weights_;
     Shape weights_shape = this->weights_->shape();
-
+    int max_num =  weights_shape.width() * weights_shape.height() * weights_shape.depth() * weights_shape.batch();
     for(int k = 0; k < weights_shape.batch(); k++) {
        for(int c = 0; c < weights_shape.depth(); c++) {
            for(int x = 0; x < weights_shape.width(); x++) {
                for(int y = 0; y < weights_shape.height(); y++) {
-                   *weights->data(k, x, y, c) = (Dtype)(distribution(generator));
+                   *weights->data(k, x, y, c) = (Dtype)(distribution(generator)) * sqrt(4.0 / max_num);
                }
            }
        }
