@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
                             softmax,
                             loss;
     double lr_rate = 0.0001;
-    double weight_decay = 0.00005;
+    double weight_decay = 0.000005;
 
     if(argc < 3)
         return 0;
@@ -44,21 +44,21 @@ int main(int argc, char *argv[])
                                            test_path,
                                            "input", image_data0));
     net.AddLayer(new ConvolutionalLayer<double>(5, 5, 3, 32, 3, 3, 0, 0, "conv0", image_data0, conv0));
-    net.AddLayer(new ConvolutionalLayer<double>(3, 3, 32, 300, 2, 2, 0, 0, "conv1", conv0, conv1));
+    net.AddLayer(new ConvolutionalLayer<double>(3, 3, 32, 256, 2, 2, 0, 0, "conv1", conv0, conv1));
     net.AddLayer(new FullyConnectedLayer<double>(2, "fc2", conv1, fc2));
     net.AddLayer(new SoftmaxLayer<double>("softmax",fc2, softmax));
     fc2.push_back(image_data0[1]);
     net.AddLayer(new LossLayer<double>("loss", fc2, loss));
 
     cout<<"Forward"<<endl;
-    int test_iters = 100;
-    int train_iters = 2000;
+    int test_iters = 10;
+    int train_iters = 1000;
     int iters = 100000;
     Data3d<double>* data0;
 
     net.WeightsToHDF5("net.hdf5");
     for(int k = 0; k < iters; k++) {
-        lr_rate *= 0.995;
+        lr_rate *= 0.9995;
         cout<<"lr_rate: "<<lr_rate<<endl;
         net.lr_rate(lr_rate);
         net.weight_decay(weight_decay);
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
         for(int i = 0; i < test_iters; i++) {
             net.Forward();
 
-            cout<<k * (train_iters+test_iters) + i<<" loss: "<<*loss[0]->data(0, 0, 0, 0)<<endl;
+            cout<<k * (train_iters+test_iters) + train_iters + i<<" loss: "<<*loss[0]->data(0, 0, 0, 0)<<endl;
             cout<<"fc2: "<<*fc2[0]->data(0, 0, 0, 0)<<" "<<*fc2[0]->data(0, 0, 0, 1)<<endl;
 //            cout<<"label: "<<*image_data0[1]->data(0, 0, 0, 0)<<" "<<*image_data0[1]->data(0, 0, 0, 1)<<endl;
             int l = ((*image_data0[1]->data(0, 0, 0, 0) == 0 )? 1 : 0);

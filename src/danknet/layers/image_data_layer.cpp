@@ -125,6 +125,13 @@ ImageDataLayer<Dtype>::Forward() {
             *top_labels->data(batch, 0, 0, i) = (i == label) ? 1 : 0;
         }
         *top_data->Data(batch) = QImage(path);
+        Shape sh = top_data->shape();
+
+        int num = sh.width() * sh.height() * sh.depth();
+        Dtype* dat = top_data->data(0);
+        for(int i = 0; i < num; i++) {
+            dat[i] = (Dtype) (dat[i] / 255.0);
+        }
 
 //        cout<<"top_data width:"<<top_data->width()<<endl;
 //        cout<<"top_data height:"<<top_data->height()<<endl;

@@ -26,7 +26,6 @@ ConvolutionalLayer<Dtype>::ConvolutionalLayer(int kernel_w, int kernel_h,
       //---------------create weights_--------------
       this->weights_ = new Blob<Dtype>(this->name_ + "_weights", Shape(kernel_w_, kernel_h_, depth_, kernels_));
       this->weights_diff_ = new Blob<Dtype>(this->name_ + "_weights_diff", Shape(kernel_w_, kernel_h_, depth_, kernels_));
-      initWeights();
 
       //-------------copy bottom vector-------------
       this->bottom_ = bottom;
@@ -37,6 +36,8 @@ ConvolutionalLayer<Dtype>::ConvolutionalLayer(int kernel_w, int kernel_h,
       int top_h = (this->bottom_[0]->shape().height() + /*2 **/ pad_h_ - kernel_h_) / stride_h_ + 1;
       this->top_.push_back(new Blob<Dtype>(this->name_ + "_data", Shape(top_w, top_h, kernels_, this->bottom_[0]->shape().batch())));
       top = this->top_;
+
+      initWeights();
 }
 
 template<typename Dtype>
@@ -75,7 +76,7 @@ ConvolutionalLayer<Dtype>::Forward() {
                 for(int top_y = 0; top_y < top_shape.height(); top_y++) {
                     //-------------ReLU activation----------------
                     if(*top_data->data(top_x, top_y, kernel) < 0) {
-                        *top_data->data(top_x, top_y, kernel) = 0;
+                        *top_data->data(top_x, top_y, kernel) *= 0.1;
                     }
                 }
             }
@@ -148,8 +149,10 @@ ConvolutionalLayer<Dtype>::Backward() {
         for(int depth = 0; depth < bottom_shape.depth(); depth++) {
             for(int bottom_x = 0; bottom_x < bottom_shape.width(); bottom_x ++) {
                 for(int bottom_y = 0; bottom_y < bottom_shape.height(); bottom_y ++) {
-                    if(*bottom_data->data(bottom_x, bottom_y , depth) <= 0 || isnan(*bottom_data->data(bottom_x, bottom_y , depth))) {
+                    if(isnan(*bottom_data->data(bottom_x, bottom_y , depth))) {
                         *bottom_data->data(bottom_x, bottom_y , depth) = 0;
+                    } else if(*bottom_data->data(bottom_x, bottom_y , depth) < 0){
+                        *bottom_data->data(bottom_x, bottom_y , depth) *= 0.1;
                     }
                 }
             }
@@ -181,14 +184,19 @@ void
 ConvolutionalLayer<Dtype>::initWeights() {
     Blob<Dtype>* weights = this->weights_;
     Shape weights_shape = this->weights_->shape();
-    int max_num =  weights_shape.width() * weights_shape.height() * weights_shape.depth() * weights_shape.batch();
+//    Shape top_shape = this->top_[0]->shape();
 
+    Shape bottom_shape = this->bottom_[0]->shape();
+    Shape top_shape = this->top_[0]->shape();
+
+//    int max_num =  weights_shape.width() * weights_shape.height() * weights_shape.depth();// * weights_shape.batch(); // + top_shape.width() * top_shape.height() * top_shape.depth();
+
+    int max_num = bottom_shape.width() * bottom_shape.height() * bottom_shape.depth();// + top_shape.width() * top_shape.height() * top_shape.depth();
     for(int k = 0; k < weights_shape.batch(); k++) {
        for(int c = 0; c < weights_shape.depth(); c++) {
            for(int x = 0; x < weights_shape.width(); x++) {
                for(int y = 0; y < weights_shape.height(); y++) {
-                   Dtype val = (Dtype)(distribution(generator));
-                   *weights->data(k, x, y, c) = (Dtype)(distribution(generator)) * sqrt(4.0 / max_num);
+                   *weights->data(k, x, y, c) = (Dtype)(distribution(generator)) / sqrt(max_num);
                }
            }
        }

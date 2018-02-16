@@ -20,11 +20,12 @@ FullyConnectedLayer<Dtype>::FullyConnectedLayer(int units,
       Shape bottom_shape = bottom[0]->shape();
       this->weights_ = new Blob<Dtype>(this->name_ + "_weights", Shape(bottom_shape.width(), bottom_shape.height(), bottom_shape.depth(), units_));
       this->weights_diff_ = new Blob<Dtype>(this->name_ + "_weights_diff", Shape(bottom_shape.width(), bottom_shape.height(), bottom_shape.depth(), units_));
-      initWeights();
+
 
       //-------------create top vector--------------
       this->top_.push_back(new Blob<Dtype>(this->name_ + "_data", Shape(1, 1, units_, this->bottom_[0]->shape().batch())));
       top = this->top_;
+      initWeights();
 }
 
 
@@ -53,8 +54,8 @@ FullyConnectedLayer<Dtype>::Forward() {
                 top_ptr[top_unit] += bottom_ptr[bottom_unit] * weights_ptr[bottom_unit];
             }
             //-------------ReLU activation----------------
-            if(top_ptr[top_unit] <= 0) {
-                top_ptr[top_unit] = 0;
+            if(top_ptr[top_unit] < 0) {
+                top_ptr[top_unit] *= 0.1;
             }
         }
 
@@ -106,8 +107,10 @@ FullyConnectedLayer<Dtype>::Backward() {
         //-------------ReLU derivation----------------
             Dtype* bottom_ptr = bottom_data->data();
             for(int bottom_unit = 0; bottom_unit < bottom_units; bottom_unit++) {
-                if(bottom_ptr[bottom_unit] <= 0 || isnan(bottom_ptr[bottom_unit])) {
+                if(isnan(bottom_ptr[bottom_unit])) {
                     bottom_ptr[bottom_unit] = 0;
+                } else if(bottom_ptr[bottom_unit] < 0) {
+                    bottom_ptr[bottom_unit] *= 0.1;
                 }
             }
         // update weights
@@ -132,12 +135,17 @@ void
 FullyConnectedLayer<Dtype>::initWeights() {
     Blob<Dtype>* weights = this->weights_;
     Shape weights_shape = this->weights_->shape();
-    int max_num =  weights_shape.width() * weights_shape.height() * weights_shape.depth() * weights_shape.batch();
+
+    Shape bottom_shape = this->bottom_[0]->shape();
+    Shape top_shape = this->top_[0]->shape();
+
+//    int max_num =  weights_shape.width() * weights_shape.height() * weights_shape.depth() * weights_shape.batch(); //+ top_shape.width() * top_shape.height() * top_shape.depth();
+    int max_num = bottom_shape.width() * bottom_shape.height();// * bottom_shape.depth();// + top_shape.width() * top_shape.height() * top_shape.depth();
     for(int k = 0; k < weights_shape.batch(); k++) {
        for(int c = 0; c < weights_shape.depth(); c++) {
            for(int x = 0; x < weights_shape.width(); x++) {
                for(int y = 0; y < weights_shape.height(); y++) {
-                   *weights->data(k, x, y, c) = (Dtype)(distribution(generator)) * sqrt(4.0 / max_num);
+                   *weights->data(k, x, y, c) = (Dtype)(distribution(generator)) / sqrt( max_num);
                }
            }
        }
