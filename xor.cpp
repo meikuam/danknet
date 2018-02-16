@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
         LeNet.lr_rate(lr_rate);
 
         cout<<"---------------------Forward----------------------"<<endl;
-        for(int i = 0, k = 0; i < 1000; i++, k++) {
+        for(int i = 0, k = 0; i <= 1000; i++, k++) {
             if(i%2 == 0 ){
                 *label.Data(0)->data(0, 0, 0) = 0;
                 *label.Data(0)->data(0, 0, 1) = 1;
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 
         if(i%1000 == 0) {
             cout<<"WeightsToHDF5"<<endl;
-          LeNet.WeightsToHDF5("lenet" + to_string(i) + ".hdf5");
+          LeNet.WeightsToHDF5("xor" + to_string(i) + ".hdf5");
         }
     }
         //test

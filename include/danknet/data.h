@@ -171,7 +171,7 @@ Data3d<Dtype>& Data3d<Dtype>::operator = (const Data3d<Btype>& data) {
 //--------------Data3d = QImage---------------
 template<typename Dtype>
 Data3d<Dtype>& Data3d<Dtype>::operator = (const QImage& data) {
-    Shape data_shape = Shape(data.width(), data.height(), data.depth());
+    Shape data_shape = Shape(data.width(), data.height(), data.depth()/8);
     if(shape_ != data_shape) {
         shape_ = data_shape;
         delete data_;

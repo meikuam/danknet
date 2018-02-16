@@ -28,8 +28,8 @@ int main(int argc, char *argv[])
                             fc2,
                             softmax,
                             loss;
-    double lr_rate = 0.0001;
-    double weight_decay = 0.000005;
+    double lr_rate = 0.005;
+    double weight_decay = 0.00005;
 
     if(argc < 3)
         return 0;
@@ -39,13 +39,23 @@ int main(int argc, char *argv[])
     string test_path(argv[2]);
     cout<<"train path: "<<train_path<<endl<<"test path: "<<test_path<<endl;
 
+//    net.AddLayer(new ImageDataLayer<double>(23, 23, 3, 1, 2,
+//                                           train_path,
+//                                           test_path,
+//                                           "input", image_data0));
+//    net.AddLayer(new ConvolutionalLayer<double>(5, 5, 3, 32, 3, 3, 0, 0, "conv0", image_data0, conv0));
+//    net.AddLayer(new ConvolutionalLayer<double>(3, 3, 32, 300, 2, 2, 0, 0, "conv1", conv0, conv1));
+//    net.AddLayer(new FullyConnectedLayer<double>(2, "fc2", conv1, fc2));
+//    net.AddLayer(new SoftmaxLayer<double>("softmax",fc2, softmax));
+//    fc2.push_back(image_data0[1]);
+//    net.AddLayer(new LossLayer<double>("loss", fc2, loss));
+
     net.AddLayer(new ImageDataLayer<double>(23, 23, 3, 1, 2,
                                            train_path,
                                            test_path,
                                            "input", image_data0));
-    net.AddLayer(new ConvolutionalLayer<double>(5, 5, 3, 32, 3, 3, 0, 0, "conv0", image_data0, conv0));
-    net.AddLayer(new ConvolutionalLayer<double>(3, 3, 32, 256, 2, 2, 0, 0, "conv1", conv0, conv1));
-    net.AddLayer(new FullyConnectedLayer<double>(2, "fc2", conv1, fc2));
+    net.AddLayer(new ConvolutionalLayer<double>(5, 5, 3, 10, 3, 3, 0, 0, "conv0", image_data0, conv0));
+    net.AddLayer(new FullyConnectedLayer<double>(2, "fc2", conv0, fc2));
     net.AddLayer(new SoftmaxLayer<double>("softmax",fc2, softmax));
     fc2.push_back(image_data0[1]);
     net.AddLayer(new LossLayer<double>("loss", fc2, loss));

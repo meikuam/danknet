@@ -124,7 +124,8 @@ ImageDataLayer<Dtype>::Forward() {
         for(int i = 0; i < labels_; i++) {
             *top_labels->data(batch, 0, 0, i) = (i == label) ? 1 : 0;
         }
-        *top_data->Data(batch) = QImage(path);
+        QImage img(path);
+        *top_data->Data(batch) = img.convertToFormat(QImage::Format_RGB888);
         Shape sh = top_data->shape();
 
         int num = sh.width() * sh.height() * sh.depth();

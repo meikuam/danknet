@@ -74,3 +74,7 @@ target_link_libraries(${project_name} Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES}) 
 add_executable(xor xor.cpp ${SOURCES} ${HEADERS})
 target_link_libraries(xor Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
 
+#xor project
+add_executable(edge_detector edge_detector.cpp ${SOURCES} ${HEADERS})
+target_link_libraries(edge_detector Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
+
