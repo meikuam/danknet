@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
                             softmax,
                             loss;
 
+    Data3d<double>* data0;
     if(argc < 4)
         return 0;
 
@@ -39,40 +40,54 @@ int main(int argc, char *argv[])
 
 
     QImage input(input_image_path);
+    input = input.convertToFormat(QImage::Format_RGB888);
     QImage output(input.width(), input.height(), QImage::Format_RGB888);
 
-    Blob<double> data("data", Shape(23, 23, 3));
+    Blob<double> data("data", Shape(5, 5, 3));
     Data3d<double>* img_data = data.Data(0);
     image_data0.push_back(&data);
 
-    net.AddLayer(new ConvolutionalLayer<double>(5, 5, 3, 32, 3, 3, 0, 0, "conv0", image_data0, conv0));
-    net.AddLayer(new ConvolutionalLayer<double>(3, 3, 32, 256, 2, 2, 0, 0, "conv1", conv0, conv1));
-    net.AddLayer(new FullyConnectedLayer<double>(2, "fc2", conv1, fc2));
-    net.AddLayer(new SoftmaxLayer<double>("softmax",fc2, softmax));
+//    net.AddLayer(new ConvolutionalLayer<double>(5, 5, 3, 32, 3, 3, 0, 0, "conv0", image_data0, conv0));
 
-//    net.AddLayer(new ConvolutionalLayer<double>(5, 5, 3, 300, 3, 3, 0, 0, "conv0", image_data0, conv0));
-//    net.AddLayer(new FullyConnectedLayer<double>(2, "fc2", conv0, fc2));
-//    net.AddLayer(new SoftmaxLayer<double>("softmax",fc2, softmax));
+
+
+    net.AddLayer(new ConvolutionalLayer<double>(3, 3, 3, 16, 1, 1, 0, 0, "fc1", image_data0, conv0));
+    net.AddLayer(new FullyConnectedLayer<double>(300, "fc2", conv0, conv1));
+    net.AddLayer(new FullyConnectedLayer<double>(2, "fc3", conv1, fc2));
+    net.AddLayer(new SoftmaxLayer<double>("softmax",fc2, softmax));
 
     net.phase(TEST);
     net.WeightsFromHDF5(weights_path);
-    for(int x = 0; x < input.width() - 23; x=x+2) {
-        for( int y = 0; y < input.height() - 23; y= y+2) {
-            *img_data = input.copy(x, y, 23, 23);
-            int num = 23*23*3;
+    for(int x = 0; x < input.width(); x++) {
+        for( int y = 0; y < input.height(); y++) {
+            output.setPixel(x, y, qRgb(0, 0, 0));
+        }
+    }
+    for(int x = 0; x < input.width() - 5; x = x+1) {
+        if(x%10 == 0) {
+            cout<<"process: "<<(x * 1.0)/ (1.0 * input.width())<<endl;
+        }
+        for( int y = 0; y < input.height() - 5; y = y+1) {
+            *img_data = input.copy(x, y, 5, 5);
             double* dat = img_data->data();
+            Shape sh = img_data->shape();
+            int num = sh.width() * sh.height() * sh.depth();
             for(int i = 0; i < num; i++) {
                 dat[i] = (double) (dat[i] / 255.0);
             }
             net.Forward();
-            cout<<"x: "<<x<<" y: "<<y<<" edge: "<<*softmax[0]->data(0, 0, 0, 0)<<endl;
+//            cout<<"x: "<<x<<" y: "<<y<<" fc2: "<<*fc2[0]->data(0, 0, 0, 0)<<" "<<fc2[0]->data(0, 0, 0, 0)[1]<< " edge: "<<*softmax[0]->data(0, 0, 0, 0)<<endl;
             if(*softmax[0]->data(0, 0, 0, 0) == 1) {
-                output.setPixel(x + 12, y + 12, qRgb(200, 50, 50));
+                output.setPixel(x + 3, y + 3, qRgb(50, 250, 50));
+            } else {
+                output.setPixel(x + 3, y + 3, qRgb(0, 0, 0));
+//                output.setPixel(x + 3, y + 3, input.pixel(x + 3, y + 3));
             }
         }
     }
     cout<<"save output image"<<endl;
     output.save(output_image_path);
+
 //    for(int k = 0; k < iters; k++) {
 //        lr_rate *= 0.9995;
 //        cout<<"lr_rate: "<<lr_rate<<endl;

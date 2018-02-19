@@ -62,6 +62,8 @@ SoftmaxLayer<Dtype>::Forward() {
 template<typename Dtype>
 vector<Blob<Dtype>*>*
 SoftmaxLayer<Dtype>::Backward() {
+
+
     return &this->bottom_;
 }
 INSTANTIATE_CLASS(SoftmaxLayer);

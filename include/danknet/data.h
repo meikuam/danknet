@@ -179,13 +179,13 @@ Data3d<Dtype>& Data3d<Dtype>::operator = (const QImage& data) {
     }
     int w = shape_.width();
     int h = shape_.height();
-    int d = shape_.depth();
+//    int d = shape_.depth();
     for(int y = 0; y < h; y++) {
-        const uint8_t* data_ptr = data.scanLine(y);
         for(int x = 0; x < w; x++) {
-            for(int c = 0; c < d; c++) {
-                data_[c * w * h + (y * w + x)] = (Dtype)(data_ptr[x * d + c]);
-            }
+            QRgb pix = data.pixel(x, y);
+            data_[y * w + x] = (Dtype)qRed(pix);
+            data_[w * h + (y * w + x)] = (Dtype)qGreen(pix);
+            data_[2 * w * h + (y * w + x)] = (Dtype)qBlue(pix);
         }
     }
 }
@@ -236,6 +236,7 @@ Dtype* Data3d<Dtype>::data(int x, int y, int c) {
     if(x < 0 || x >= shape_.width() ||
        y < 0 || y >= shape_.height() ||
        c < 0 || c >= shape_.depth()) {
+        zero_val = 0;
         return &zero_val;
     } else {
         return &(data_[c * shape_.width() * shape_.height() + (y * shape_.width() + x)]);

@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     cout<<"start"<<endl;
 
 
-        Net<double> LeNet;
+        Net<double> xorNet;
 
 
         Blob<double> data("data", Shape(1, 1, 2));
@@ -35,13 +35,19 @@ int main(int argc, char *argv[])
         cout<<"AddLayer"<<endl;
          double lr_rate = 0.04;
 
-        LeNet.AddLayer(new FullyConnectedLayer<double>(200, "ip0", ip0_bottom, ip0_top));;
-        LeNet.AddLayer(new FullyConnectedLayer<double>(2, "ip4", ip0_top, ip4_top));
+        xorNet.AddLayer(new FullyConnectedLayer<double>(200, "ip0", ip0_bottom, ip0_top));;
+        xorNet.AddLayer(new FullyConnectedLayer<double>(2, "ip4", ip0_top, ip4_top));
         ip4_top.push_back(&label);
-        LeNet.AddLayer(new LossLayer<double>("loss", ip4_top, softmax_top));
+        xorNet.AddLayer(new LossLayer<double>("loss", ip4_top, softmax_top));
 
-        LeNet.lr_rate(lr_rate);
+        xorNet.lr_rate(lr_rate);
+        xorNet.weight_decay(0);
+        xorNet.momentum(0.0);
+        xorNet.gamma(0.1);
+        xorNet.step_size(9900);
 
+        xorNet.WeightsToHDF5("xorNet1000.hdf5");
+        xorNet.WeightsFromHDF5("xorNet1000.hdf5");
         cout<<"---------------------Forward----------------------"<<endl;
         for(int i = 0, k = 0; i <= 1000; i++, k++) {
             if(i%2 == 0 ){
@@ -68,13 +74,13 @@ int main(int argc, char *argv[])
                 }
             }
 
-        LeNet.Forward();
-       cout<<i<<" "<<softmax_top[0]->name()<<" "<<*softmax_top[0]->data(0, 0, 0, 0)<<endl;
-        LeNet.Backward();
+        xorNet.Forward();
+        cout<<i<<" "<<softmax_top[0]->name()<<" "<<*softmax_top[0]->data(0, 0, 0, 0)<<endl;
+        xorNet.Backward();
 
         if(i%1000 == 0) {
             cout<<"WeightsToHDF5"<<endl;
-          LeNet.WeightsToHDF5("xor" + to_string(i) + ".hdf5");
+          xorNet.WeightsToHDF5("xorNet" + to_string(i) + ".hdf5");
         }
     }
         //test
@@ -103,7 +109,7 @@ int main(int argc, char *argv[])
                     *data.Data(0)->data(0, 0, 1) = 1;
                 }
             }
-            LeNet.Forward();
+            xorNet.Forward();
             loss += *softmax_top[0]->data(0, 0, 0, 0);
             cout<<"label: "<< *label.data(0, 0, 0, 0) <<" "<< *label.data(0, 0, 0, 1) <<endl;
             cout<<"ip4_top: "<< *ip4_top[0]->data(0, 0, 0, 0) <<" "<< *ip4_top[0]->data(0, 0, 0, 1) <<endl;

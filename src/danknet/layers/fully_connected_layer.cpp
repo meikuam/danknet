@@ -7,7 +7,7 @@ FullyConnectedLayer<Dtype>::FullyConnectedLayer(int units,
                                                 string name,
                                                 vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
     : Layer<Dtype>(name, bottom, top),
-      distribution(-1, 1),
+      distribution(0, 1),
       generator(std::chrono::system_clock::now().time_since_epoch().count())
 {
       units_ = units;
@@ -55,7 +55,7 @@ FullyConnectedLayer<Dtype>::Forward() {
             }
             //-------------ReLU activation----------------
             if(top_ptr[top_unit] < 0) {
-                top_ptr[top_unit] *= 0.1;
+                top_ptr[top_unit] = 0;
             }
         }
 
@@ -71,31 +71,32 @@ FullyConnectedLayer<Dtype>::Backward() {
     Blob<Dtype>* top = this->top_[0];
     Blob<Dtype>* weights = this->weights_;
     Blob<Dtype>* weights_diff = this->weights_diff_;
+    Blob<Dtype>* weights_diff_new = new Blob<Dtype>("weights_diff_new", weights_diff->shape());
+    weights_diff_new ->setToZero();
 
-    weights_diff->setToZero();
+    int bottom_units = bottom->width() * bottom->height() * bottom->depth();
+
+//    weights_diff->setToZero();
+
     //-------------------batch--------------------
     for(int batch = 0; batch < bottom->batch_size(); batch++) {
         Data3d<Dtype>* bottom_data = bottom->Data(batch);
         Data3d<Dtype>* top_data = top->Data(batch);
-        Shape bottom_shape = bottom_data->shape();
-        Shape top_shape = top_data->shape();
-        int bottom_units = bottom_shape.width() * bottom_shape.height() * bottom_shape.depth();
-
 
         // calc weights diffs
 
-        for(int top_unit = 0; top_unit < top_shape.depth(); top_unit++) {
+        for(int top_unit = 0; top_unit < top->depth(); top_unit++) {
             Dtype* bottom_ptr = bottom_data->data();
-            Dtype* weights_diff_ptr = weights_diff->data(top_unit);
+            Dtype* weights_diff_new_ptr = weights_diff_new->data(top_unit);
             Dtype* top_ptr = top_data->data();
 
             for(int bottom_unit = 0; bottom_unit < bottom_units; bottom_unit++) {
-                weights_diff_ptr[bottom_unit] += top_ptr[top_unit] * bottom_ptr[bottom_unit];
+                weights_diff_new_ptr[bottom_unit] += top_ptr[top_unit] * bottom_ptr[bottom_unit];
             }
         }
         // calc error
         bottom_data->setToZero();
-        for(int top_unit = 0; top_unit < top_shape.depth(); top_unit++) {
+        for(int top_unit = 0; top_unit < top->depth(); top_unit++) {
             Dtype* bottom_ptr = bottom_data->data();
             Dtype* weights_ptr = weights->data(top_unit);
             Dtype* top_ptr = top_data->data();
@@ -110,22 +111,34 @@ FullyConnectedLayer<Dtype>::Backward() {
                 if(isnan(bottom_ptr[bottom_unit])) {
                     bottom_ptr[bottom_unit] = 0;
                 } else if(bottom_ptr[bottom_unit] < 0) {
-                    bottom_ptr[bottom_unit] *= 0.1;
+                    bottom_ptr[bottom_unit] = 0;
+                } else {
+                    bottom_ptr[bottom_unit] = bottom_ptr[bottom_unit];
                 }
             }
-        // update weights
-        for(int top_unit = 0; top_unit < top_shape.depth(); top_unit++) {
-            Dtype* weights_diff_ptr = weights_diff->data(top_unit);
-            Dtype* weights_ptr = weights->data(top_unit);
+    }
+    // update weights
+    for(int top_unit = 0; top_unit < top->depth(); top_unit++) {
+        Dtype* weights_diff_new_ptr = weights_diff_new->data(top_unit);
+        Dtype* weights_diff_ptr = weights_diff->data(top_unit);
+        Dtype* weights_ptr = weights->data(top_unit);
 
-            for(int bottom_unit = 0; bottom_unit < bottom_units; bottom_unit++) {
-                if(!isnan(weights_diff_ptr[bottom_unit])) {
-                    weights_ptr[bottom_unit] -= (weights_diff_ptr[bottom_unit] + weights_ptr[bottom_unit] * this->weight_decay_) *this->lr_rate_;
+        for(int bottom_unit = 0; bottom_unit < bottom_units; bottom_unit++) {
+            if(!isnan(weights_diff_new_ptr[bottom_unit])) {
+//                weights_ptr[bottom_unit] -= (weights_diff_ptr[bottom_unit] + weights_ptr[bottom_unit] * this->weight_decay_) *this->lr_rate_;
+                weights_diff_ptr[bottom_unit] = this->momentum_ * weights_diff_ptr[bottom_unit] - this->lr_rate_ * (weights_diff_new_ptr[bottom_unit] / bottom->batch_size());
+
+
+//                weights_diff_ptr[bottom_unit] = this->momentum_ * weights_diff_ptr[bottom_unit] - this->lr_rate_ * weights_diff_new_ptr[bottom_unit];
+
+                weights_ptr[bottom_unit] += weights_diff_ptr[bottom_unit] + this->lr_rate_ * this->weight_decay_ * weights_ptr[bottom_unit];
+                if(isnan(weights_ptr[bottom_unit])) {
+                    weights_ptr[bottom_unit] = (Dtype)(distribution(generator)) * 0.01;
                 }
             }
         }
-
     }
+    delete weights_diff_new;
     return &this->bottom_;
 }
 
@@ -139,13 +152,13 @@ FullyConnectedLayer<Dtype>::initWeights() {
     Shape bottom_shape = this->bottom_[0]->shape();
     Shape top_shape = this->top_[0]->shape();
 
-//    int max_num =  weights_shape.width() * weights_shape.height() * weights_shape.depth() * weights_shape.batch(); //+ top_shape.width() * top_shape.height() * top_shape.depth();
-    int max_num = bottom_shape.width() * bottom_shape.height();// * bottom_shape.depth();// + top_shape.width() * top_shape.height() * top_shape.depth();
+    int max_num =  weights_shape.width() * weights_shape.height() * weights_shape.depth();
+//    int max_num = bottom_shape.width() * bottom_shape.height() * bottom_shape.depth() + top_shape.width() * top_shape.height() * top_shape.depth();
     for(int k = 0; k < weights_shape.batch(); k++) {
        for(int c = 0; c < weights_shape.depth(); c++) {
            for(int x = 0; x < weights_shape.width(); x++) {
                for(int y = 0; y < weights_shape.height(); y++) {
-                   *weights->data(k, x, y, c) = (Dtype)(distribution(generator)) / sqrt( max_num);
+                   *weights->data(k, x, y, c) = (Dtype)(distribution(generator)) * sqrt( 2.0 / max_num);
                }
            }
        }

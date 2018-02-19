@@ -60,6 +60,7 @@ protected:
 
     Dtype                lr_rate_;
     Dtype                weight_decay_;
+    Dtype                momentum_;
 
 public:
     explicit Layer(string name, vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
@@ -80,9 +81,11 @@ public:
     inline void lr_rate(Dtype lr_rate) { lr_rate_ = lr_rate; }
     inline Dtype lr_rate() { return lr_rate_; }
 
-
     inline Dtype weight_decay() {return weight_decay_;}
     inline void weight_decay(Dtype weight_decay) { weight_decay_ = weight_decay;}
+
+    inline Dtype momentum() {return momentum_;}
+    inline void momentum(Dtype momentum) { momentum_ = momentum;}
 
 //    inline bool has_top_layers() { return top_layers_.size() > 0 ? true : false; }
 //    inline bool has_bottom_layers() { return top_layers_.size() > 0 ? true : false; }

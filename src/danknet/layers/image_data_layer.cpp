@@ -121,6 +121,7 @@ ImageDataLayer<Dtype>::Forward() {
             current_test_image_++;
             break;
         }
+
         for(int i = 0; i < labels_; i++) {
             *top_labels->data(batch, 0, 0, i) = (i == label) ? 1 : 0;
         }
@@ -129,7 +130,7 @@ ImageDataLayer<Dtype>::Forward() {
         Shape sh = top_data->shape();
 
         int num = sh.width() * sh.height() * sh.depth();
-        Dtype* dat = top_data->data(0);
+        Dtype* dat = top_data->data(batch);
         for(int i = 0; i < num; i++) {
             dat[i] = (Dtype) (dat[i] / 255.0);
         }

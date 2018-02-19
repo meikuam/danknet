@@ -10,7 +10,7 @@ ConvolutionalLayer<Dtype>::ConvolutionalLayer(int kernel_w, int kernel_h,
                             string name,
                             vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
       : Layer<Dtype>(name, bottom, top),
-        distribution(-1, 1),
+        distribution(0, 1),
         generator(std::chrono::system_clock::now().time_since_epoch().count())
 {
       kernel_w_     = kernel_w;
@@ -76,7 +76,7 @@ ConvolutionalLayer<Dtype>::Forward() {
                 for(int top_y = 0; top_y < top_shape.height(); top_y++) {
                     //-------------ReLU activation----------------
                     if(*top_data->data(top_x, top_y, kernel) < 0) {
-                        *top_data->data(top_x, top_y, kernel) *= 0.1;
+                        *top_data->data(top_x, top_y, kernel) = 0;
                     }
                 }
             }
@@ -93,6 +93,9 @@ ConvolutionalLayer<Dtype>::Backward() {
     Blob<Dtype>* top = this->top_[0];
     Blob<Dtype>* weights = this->weights_;
     Blob<Dtype>* weights_diff = this->weights_diff_;
+    Blob<Dtype>* weights_diff_new = new Blob<Dtype>("weights_diff_new", weights_diff->shape());
+    weights_diff_new ->setToZero();
+
     // 1)
     // dh^-1 * X
     // weights_diff = top^-1 * bottom
@@ -100,27 +103,27 @@ ConvolutionalLayer<Dtype>::Backward() {
     // X = weights^-1 * dh
     // bottom = weights^-1 * top
 
-    weights_diff->setToZero();
+//    weights_diff->setToZero();
 
+    Shape weights_shape = weights_diff->shape();
     //-------------------batch--------------------
     for(int batch = 0; batch < bottom->batch_size(); batch++) {
         Data3d<Dtype>* bottom_data = bottom->Data(batch);
         Data3d<Dtype>* top_data = top->Data(batch);
         Shape bottom_shape = bottom_data->shape();
         Shape top_shape = top_data->shape();
-        Shape weights_shape = weights_diff->shape();
         // weights_diff = top * bottom
 
         //-------------------kernel-------------------
         // calc weights diffs
         for(int kernel = 0; kernel < top_shape.depth(); kernel++) {
-            Data3d<Dtype>* weights_diff_data = weights_diff->Data(kernel);
+            Data3d<Dtype>* weights_diff_new_data = weights_diff_new->Data(kernel);
             for(int depth = 0; depth < bottom_shape.depth(); depth++) {
                 for(int top_x = 0, bottom_x = 0/*- pad_w_*/; top_x < top_shape.width(); top_x++,  bottom_x += stride_w_ ) {
                     for(int top_y = 0, bottom_y = 0/*- pad_h_*/; top_y < top_shape.height(); top_y++, bottom_y += stride_h_) {
                         for(int x = 0; x < weights_shape.width(); x++) {
                             for(int y = 0; y < weights_shape.height(); y++) {
-                                *weights_diff_data->data(x, y, depth) += *top_data->data(top_y, top_x, kernel) * *bottom_data->data(bottom_x + x, bottom_y + y, depth);
+                                *weights_diff_new_data->data(x, y, depth) += *top_data->data(top_x, top_y, kernel) * *bottom_data->data(bottom_x + x, bottom_y + y, depth);
                             }
                         }
                     }
@@ -138,7 +141,7 @@ ConvolutionalLayer<Dtype>::Backward() {
 
                         for(int x = 0; x < weights_shape.width(); x++) {
                             for(int y = 0; y < weights_shape.height(); y++) {
-                                *bottom_data->data(bottom_x + x, bottom_y + y, depth) += *weights_data->data(y, x, depth) * *top_data->data(top_x, top_y, kernel);
+                                *bottom_data->data(bottom_x + x, bottom_y + y, depth) += *weights_data->data(x, y, depth) * *top_data->data(top_x, top_y, kernel);
                             }
                         }
                     }
@@ -152,27 +155,37 @@ ConvolutionalLayer<Dtype>::Backward() {
                     if(isnan(*bottom_data->data(bottom_x, bottom_y , depth))) {
                         *bottom_data->data(bottom_x, bottom_y , depth) = 0;
                     } else if(*bottom_data->data(bottom_x, bottom_y , depth) < 0){
-                        *bottom_data->data(bottom_x, bottom_y , depth) *= 0.1;
+                        *bottom_data->data(bottom_x, bottom_y , depth) = 0;
                     }
                 }
             }
         }
-        // update weights
-        for(int kernel = 0; kernel < weights_shape.batch(); kernel++) {
-            Data3d<Dtype>* weights_data = weights->Data(kernel);
-            Data3d<Dtype>* weights_diff_data = weights_diff->Data(kernel);
 
-            for(int depth = 0; depth < weights_shape.depth(); depth++) {
-                for(int x = 0; x < weights_shape.width(); x++) {
-                    for(int y = 0; y < weights_shape.height(); y++) {
-                        if(!isnan(*weights_diff_data->data(x, y, depth))) {
-                            *weights_data->data(x,y, depth) -= (*weights_diff_data->data(x, y, depth) + *weights_data->data(x,y, depth) * this->weight_decay_) * this->lr_rate_;
+    }
+
+    // update weights
+    for(int kernel = 0; kernel < weights_shape.batch(); kernel++) {
+        Data3d<Dtype>* weights_data = weights->Data(kernel);
+        Data3d<Dtype>* weights_diff_data = weights_diff->Data(kernel);
+        Data3d<Dtype>* weights_diff_new_data = weights_diff_new->Data(kernel);
+
+        for(int depth = 0; depth < weights_shape.depth(); depth++) {
+            for(int x = 0; x < weights_shape.width(); x++) {
+                for(int y = 0; y < weights_shape.height(); y++) {
+                    if(!isnan(*weights_diff_new_data->data(x, y, depth))) {
+                        *weights_diff_data->data(x, y, depth) = this->momentum_ * *weights_diff_data->data(x, y, depth) - this->lr_rate_ * (*weights_diff_new_data->data(x, y, depth) / bottom->batch_size());
+//                        *weights_diff_data->data(x, y, depth) = this->momentum_ * *weights_diff_data->data(x, y, depth) - this->lr_rate_ * *weights_diff_new_data->data(x, y, depth);
+
+                        *weights_data->data(x, y, depth) += *weights_diff_data->data(x, y, depth) + this->lr_rate_ * this->weight_decay_ *  *weights_data->data(x, y, depth);
+//                        *weights_data->data(x,y, depth) -= (*weights_diff_data->data(x, y, depth) + *weights_data->data(x, y, depth) * this->weight_decay_) * this->lr_rate_;
+ //                            *weights_data->data(x,y, depth) -= *weights_diff_data->data(x, y, depth) * this->lr_rate_;
+                        if(isnan(*weights_data->data(x, y, depth))) {
+                            *weights_data->data(x, y, depth) = distribution(generator) * 0.01;
                         }
                     }
                 }
             }
         }
-
     }
     return &this->bottom_;
 }
@@ -189,14 +202,14 @@ ConvolutionalLayer<Dtype>::initWeights() {
     Shape bottom_shape = this->bottom_[0]->shape();
     Shape top_shape = this->top_[0]->shape();
 
-//    int max_num =  weights_shape.width() * weights_shape.height() * weights_shape.depth();// * weights_shape.batch(); // + top_shape.width() * top_shape.height() * top_shape.depth();
+    int max_num =  weights_shape.width() * weights_shape.height() * weights_shape.depth(); // * weights_shape.batch(); // + top_shape.width() * top_shape.height() * top_shape.depth();
 
-    int max_num = bottom_shape.width() * bottom_shape.height() * bottom_shape.depth();// + top_shape.width() * top_shape.height() * top_shape.depth();
+//    int max_num = bottom_shape.width() * bottom_shape.height() * bottom_shape.depth() + top_shape.width() * top_shape.height() * top_shape.depth();
     for(int k = 0; k < weights_shape.batch(); k++) {
        for(int c = 0; c < weights_shape.depth(); c++) {
            for(int x = 0; x < weights_shape.width(); x++) {
                for(int y = 0; y < weights_shape.height(); y++) {
-                   *weights->data(k, x, y, c) = (Dtype)(distribution(generator)) / sqrt(max_num);
+                   *weights->data(k, x, y, c) = (Dtype)(distribution(generator)) * sqrt(2.0 / max_num);
                }
            }
        }

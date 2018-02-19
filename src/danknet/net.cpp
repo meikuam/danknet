@@ -1,10 +1,25 @@
 #include "net.h"
-
+#include <iostream>
+using namespace std;
 namespace danknet {
 
 
 template<typename Dtype>
 void Net<Dtype>::Forward() {
+    //don't step on snek
+    //TODO: this is solver operation
+    switch (phase_) {
+    case TRAIN:
+        train_iters++;
+        if(train_iters % step_size_ == 0) {
+            lr_rate(lr_rate_ * gamma_);
+        }
+        break;
+    case TEST:
+        test_iters++;
+        break;
+    }
+
     for(int i = 0; i < layers_.size(); i++) {
         layers_[i]->Forward();
     }
@@ -38,7 +53,8 @@ void Net<Dtype>::WeightsFromHDF5(string filename) {
 
                     Dtype* weights = new Dtype[weights_shape.width() * weights_shape.height() * weights_shape.depth() * weights_shape.batch() ];
                     dataset.read((void*)weights, dataset.getDataType());
-                    dataset.close();
+//                    cout<<"weights: "<< name<<endl;
+
                     for(int k = 0; k < weights_shape.batch(); k++) {
                         for(int c = 0; c < weights_shape.depth(); c++) {
                             for(int x = 0; x < weights_shape.width(); x++) {
@@ -52,6 +68,7 @@ void Net<Dtype>::WeightsFromHDF5(string filename) {
                             }
                         }
                     }
+                    dataset.close();
                 }
                 break;
             }
@@ -64,7 +81,6 @@ void Net<Dtype>::WeightsFromHDF5(string filename) {
 
                     Dtype* weights = new Dtype[weights_shape.width() * weights_shape.height() * weights_shape.depth() * weights_shape.batch() ];
                     dataset.read((void*)weights, dataset.getDataType());
-                    dataset.close();
                     for(int k = 0; k < weights_shape.batch(); k++) {
                         for(int c = 0; c < weights_shape.depth(); c++) {
                             for(int x = 0; x < weights_shape.width(); x++) {
@@ -78,6 +94,7 @@ void Net<Dtype>::WeightsFromHDF5(string filename) {
                             }
                         }
                     }
+                    dataset.close();
                 }
                 break;
             }
@@ -103,7 +120,7 @@ void Net<Dtype>::WeightsToHDF5(string filename) {
                                (hsize_t)weights_shape.height()};
 
             DataSet dataset = hdf5file.createDataSet(layer_weights->name(),
-                                                     PredType::NATIVE_FLOAT,
+                                                     PredType::NATIVE_DOUBLE,
                                                      DataSpace(4, dims));
 
             Dtype* weights = new Dtype[weights_shape.width() * weights_shape.height() * weights_shape.depth() * weights_shape.batch() ];
@@ -153,7 +170,7 @@ void Net<Dtype>::WeightsToHDF5(string filename) {
 
 
             DataSet dataset = hdf5file.createDataSet(layer_weights->name(),
-                                                     PredType::NATIVE_FLOAT,
+                                                     PredType::NATIVE_DOUBLE,
                                                      DataSpace(weights_shape.dims(), dims));
 
             Dtype* weights = new Dtype[weights_shape.width() * weights_shape.height() * weights_shape.depth() * weights_shape.batch() ];

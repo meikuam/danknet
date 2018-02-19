@@ -33,7 +33,8 @@ private:
     Blob<Dtype>*         weights_diff_;
 
     std::default_random_engine generator;
-    std::uniform_real_distribution<Dtype> distribution;
+//    std::uniform_real_distribution<Dtype> distribution;
+    std::normal_distribution<Dtype> distribution;
 };
 
 } // namespace danknet

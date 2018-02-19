@@ -28,6 +28,12 @@ private:
     string name_;
     Dtype                lr_rate_;
     Dtype                weight_decay_;
+    Dtype                momentum_;
+    Dtype                gamma_;
+
+    int train_iters = 0;
+    int test_iters = 0;
+    int step_size_ = 0;
 
     vector<Layer<Dtype>*> layers_;
     map<string, Blob<Dtype>*> blobs_;
@@ -55,13 +61,13 @@ public:
         }
     }
 
+    inline Dtype lr_rate() { return lr_rate_; }
     inline void lr_rate(Dtype lr_rate) {
         lr_rate_ = lr_rate;
         for(int i = 0; i < layers_.size(); i++) {
             layers_[i]->lr_rate(lr_rate_);
         }
     }
-    inline Dtype lr_rate() { return lr_rate_; }
 
     inline Dtype weight_decay() {return weight_decay_;}
     inline void weight_decay(Dtype weight_decay) {
@@ -70,6 +76,20 @@ public:
             layers_[i]->weight_decay(weight_decay_);
         }
     }
+
+    inline Dtype momentum() {return momentum_;}
+    inline void momentum(Dtype momentum) {
+        momentum_ = momentum;
+        for(int i = 0; i < layers_.size(); i++) {
+            layers_[i]->momentum(momentum_);
+        }
+    }
+
+    inline Dtype gamma() {return gamma_;}
+    inline void gamma(Dtype gamma) { gamma_ = gamma;}
+
+    inline Dtype step_size() {return step_size_;}
+    inline void step_size(Dtype step_size) { step_size_ = step_size; }
 
     void Forward();
     void Backward();

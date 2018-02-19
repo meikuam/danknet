@@ -31,8 +31,18 @@ LossLayer<Dtype>::Forward() {
 
         //loss  = 0.5 * sum((pred - labels)^2)
         Dtype loss = (Dtype)0;
-        for(int k = 0; k < pred_data->shape().depth(); k++) {
-            loss +=  (*labels_data->data(0,0,k) - *pred_data->data(0, 0, k)) * (*labels_data->data(0,0,k) - *pred_data->data(0, 0, k));
+
+        Shape pred_shape = pred_data->shape();
+        int K = pred_shape.depth();
+        int w = pred_shape.width();
+        int h = pred_shape.height();
+
+        for(int x = 0; x < w; x++) {
+            for(int y = 0; y < h; y++) {
+                for(int k = 0; k < K; k++) {
+                    loss +=  (*labels_data->data(x, y, k) - *pred_data->data(x, y, k)) * (*labels_data->data(x, y, k) - *pred_data->data(x, y, k));
+                }
+            }
         }
         loss /= (Dtype)2;
 
@@ -53,9 +63,27 @@ LossLayer<Dtype>::Backward() {
         Data3d<Dtype>* labels_data = labels->Data(batch);
         Shape pred_shape = pred_data->shape();
         int K = pred_shape.depth();
-        //dE/dyk = - (pred_data(k) - labels(k))
-        for(int k = 0; k < K; k++) {
-            *pred_data->data(0, 0, k) =  - (*labels_data->data(0,0,k) - *pred_data->data(0, 0, k)) * this->lr_rate_;
+        int w = pred_shape.width();
+        int h = pred_shape.height();
+
+        //dE/dyk = - (labels(k) - pred_data(k))
+        for(int x = 0; x < w; x++) {
+            for(int y = 0; y < h; y++) {
+                for(int k = 0; k < K; k++) {
+                    *pred_data->data(x, y, k) = - (*labels_data->data(x, y, k) - *pred_data->data(x, y, k));// * this->lr_rate_;
+                }
+            }
+        }
+    }
+
+    for(int batch = 0; batch < pred->batch_size(); batch++) {
+        Data3d<Dtype>* pred_data = pred->Data(batch);
+        for(int x = 0; x < pred->width(); x++) {
+            for(int y = 0; y < pred->height(); y++) {
+                for(int k = 0; k < pred->depth(); k++) {
+                    *pred_data->data(x, y, k) /= pred->batch_size();
+                }
+            }
         }
     }
 
