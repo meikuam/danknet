@@ -37,6 +37,7 @@ enum layertype {
     Pooling_Layer,
     Loss_Layer,
     Softmax_Layer,
+    Data_Layer,
     Image_Data_Layer
 };
 
