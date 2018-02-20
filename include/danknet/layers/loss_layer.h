@@ -13,7 +13,7 @@ class LossLayer : public Layer<Dtype> {
   explicit LossLayer(string name,
                      vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
 
-    virtual inline layertype type() const {return Loss_Layer; }
+    virtual inline Layertype type() const {return Loss_Layer; }
 
     virtual vector<Blob<Dtype>*>* Forward();
     virtual vector<Blob<Dtype>*>* Backward();

@@ -13,16 +13,18 @@ template <typename Dtype>
 class FullyConnectedLayer : public Layer<Dtype> {
  public:
   explicit FullyConnectedLayer(int units,
-                              string name,
-                              vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
+                               Activation activation,
+                               string name,
+                               vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
 
-    virtual inline layertype type() const {return Fully_Connected_Layer; }
+    virtual inline Layertype type() const {return Fully_Connected_Layer; }
 
     virtual vector<Blob<Dtype>*>* Forward();
     virtual vector<Blob<Dtype>*>* Backward();
     void initWeights();
 private:
     int units_;
+    Activation activation_;
 
     Blob<Dtype>*         weights_diff_;
 

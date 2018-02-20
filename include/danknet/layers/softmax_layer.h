@@ -13,7 +13,7 @@ class SoftmaxLayer : public Layer<Dtype> {
   explicit SoftmaxLayer(string name,
                      vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
 
-    virtual inline layertype type() const {return Softmax_Layer; }
+    virtual inline Layertype type() const {return Softmax_Layer; }
 
     virtual vector<Blob<Dtype>*>* Forward();
     virtual vector<Blob<Dtype>*>* Backward();

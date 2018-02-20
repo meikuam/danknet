@@ -30,7 +30,7 @@ namespace danknet {
 // references to Data3d objects.
 
 
-enum layertype {
+enum Layertype {
     BaseType,
     Convolutional_Layer,
     Fully_Connected_Layer,
@@ -46,6 +46,34 @@ enum Phase {
     TEST
 };
 
+enum Activation {
+    ReLU,
+    leakyReLU
+};
+
+template <typename Dtype>
+Dtype act_func(Dtype x, Activation act) {
+    switch (act) {
+    case ReLU:
+        return x > 0 ? x : 0;
+        break;
+    case leakyReLU:
+        return x > 0 ? x : x * 0.01;
+        break;
+    }
+}
+
+template <typename Dtype>
+Dtype derivate_act_func(Dtype x, Activation act) {
+    switch (act) {
+    case ReLU:
+        return x > 0 ? 1 : 0;
+        break;
+    case leakyReLU:
+        return x > 0 ? 1 : 0.01;
+        break;
+    }
+}
 
 template <typename Dtype>
 class Layer {
@@ -68,7 +96,7 @@ public:
 
     virtual ~Layer() {}
 
-    virtual inline layertype type() const {return BaseType; }
+    virtual inline Layertype type() const {return BaseType; }
     virtual inline string name() {return name_; }
     inline Phase phase() { return phase_; }
     inline void phase(Phase phase) { phase_ = phase; }

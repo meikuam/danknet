@@ -24,7 +24,7 @@ class ImageDataLayer : public Layer<Dtype> {
                           string name,
                           vector<Blob<Dtype>*>& top);
 
-    virtual inline layertype type() const {return Image_Data_Layer; }
+    virtual inline Layertype type() const {return Image_Data_Layer; }
 
     virtual vector<Blob<Dtype>*>* Forward();
     virtual vector<Blob<Dtype>*>* Backward();

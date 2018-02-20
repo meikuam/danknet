@@ -35,8 +35,8 @@ int main(int argc, char *argv[])
         cout<<"AddLayer"<<endl;
          double lr_rate = 0.04;
 
-        xorNet.AddLayer(new FullyConnectedLayer<double>(200, "ip0", ip0_bottom, ip0_top));;
-        xorNet.AddLayer(new FullyConnectedLayer<double>(2, "ip4", ip0_top, ip4_top));
+        xorNet.AddLayer(new FullyConnectedLayer<double>(200, ReLU, "ip0", ip0_bottom, ip0_top));;
+        xorNet.AddLayer(new FullyConnectedLayer<double>(2, ReLU, "ip4", ip0_top, ip4_top));
         ip4_top.push_back(&label);
         xorNet.AddLayer(new LossLayer<double>("loss", ip4_top, softmax_top));
 

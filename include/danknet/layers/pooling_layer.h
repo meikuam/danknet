@@ -16,7 +16,7 @@ class PoolingLayer : public Layer<Dtype> {
                         string name,
                         vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
 
-    virtual inline layertype type() const {return Pooling_Layer; }
+    virtual inline Layertype type() const {return Pooling_Layer; }
 
     virtual vector<Blob<Dtype>*>* Forward();
     virtual vector<Blob<Dtype>*>* Backward();

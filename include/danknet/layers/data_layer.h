@@ -15,7 +15,7 @@ namespace danknet {
 template <typename Dtype>
 class DataLayer : public Layer<Dtype> {
  public:
-  explicit DataLayer(int width, int height, int depth,
+  explicit DataLayer(int depth,
                           int batches,
                           int labels,
                           string train_path,
@@ -23,7 +23,7 @@ class DataLayer : public Layer<Dtype> {
                           string name,
                           vector<Blob<Dtype>*>& top);
 
-    virtual inline layertype type() const {return Image_Data_Layer; }
+    virtual inline Layertype type() const {return Data_Layer; }
 
     virtual vector<Blob<Dtype>*>* Forward();
     virtual vector<Blob<Dtype>*>* Backward();

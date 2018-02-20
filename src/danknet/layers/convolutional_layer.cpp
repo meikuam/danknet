@@ -7,6 +7,7 @@ ConvolutionalLayer<Dtype>::ConvolutionalLayer(int kernel_w, int kernel_h,
                             int depth, int kernels,
                             int stride_w, int stride_h,
                             int pad_w, int pad_h,
+                            Activation activation,
                             string name,
                             vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
       : Layer<Dtype>(name, bottom, top),
@@ -21,6 +22,8 @@ ConvolutionalLayer<Dtype>::ConvolutionalLayer(int kernel_w, int kernel_h,
       stride_h_     = stride_h;
       pad_w_        = pad_w;
       pad_h_        = pad_h;
+
+      activation_   = activation;
 
       //-----------------Blob<Dtype>*---------------
       //---------------create weights_--------------
@@ -74,10 +77,8 @@ ConvolutionalLayer<Dtype>::Forward() {
             }
             for(int top_x = 0; top_x < top_shape.width(); top_x++) {
                 for(int top_y = 0; top_y < top_shape.height(); top_y++) {
-                    //-------------ReLU activation----------------
-                    if(*top_data->data(top_x, top_y, kernel) < 0) {
-                        *top_data->data(top_x, top_y, kernel) = 0;
-                    }
+                    //----------------activation------------------
+                    *top_data->data(top_x, top_y, kernel) = act_func(*top_data->data(top_x, top_y, kernel), activation_);
                 }
             }
         }
@@ -109,6 +110,7 @@ ConvolutionalLayer<Dtype>::Backward() {
     //-------------------batch--------------------
     for(int batch = 0; batch < bottom->batch_size(); batch++) {
         Data3d<Dtype>* bottom_data = bottom->Data(batch);
+        Data3d<Dtype>* bottom_data_error = new Data3d<Dtype>(bottom_data->shape());
         Data3d<Dtype>* top_data = top->Data(batch);
         Shape bottom_shape = bottom_data->shape();
         Shape top_shape = top_data->shape();
@@ -132,7 +134,7 @@ ConvolutionalLayer<Dtype>::Backward() {
         }
         // calc error
         // we are don't admire ativation function
-        bottom_data->setToZero();
+        bottom_data_error->setToZero();
         for(int kernel = 0; kernel < top_shape.depth(); kernel++) {
             Data3d<Dtype>* weights_data = weights->Data(kernel);
             for(int depth = 0; depth < bottom_shape.depth(); depth++) {
@@ -141,7 +143,7 @@ ConvolutionalLayer<Dtype>::Backward() {
 
                         for(int x = 0; x < weights_shape.width(); x++) {
                             for(int y = 0; y < weights_shape.height(); y++) {
-                                *bottom_data->data(bottom_x + x, bottom_y + y, depth) += *weights_data->data(x, y, depth) * *top_data->data(top_x, top_y, kernel);
+                                *bottom_data_error->data(bottom_x + x, bottom_y + y, depth) += *weights_data->data(x, y, depth) * *top_data->data(top_x, top_y, kernel);
                             }
                         }
                     }
@@ -152,15 +154,15 @@ ConvolutionalLayer<Dtype>::Backward() {
         for(int depth = 0; depth < bottom_shape.depth(); depth++) {
             for(int bottom_x = 0; bottom_x < bottom_shape.width(); bottom_x ++) {
                 for(int bottom_y = 0; bottom_y < bottom_shape.height(); bottom_y ++) {
-                    if(isnan(*bottom_data->data(bottom_x, bottom_y , depth))) {
+                    if(isnan(*bottom_data_error->data(bottom_x, bottom_y , depth))) {
                         *bottom_data->data(bottom_x, bottom_y , depth) = 0;
-                    } else if(*bottom_data->data(bottom_x, bottom_y , depth) < 0){
-                        *bottom_data->data(bottom_x, bottom_y , depth) = 0;
+                    } else {
+                        *bottom_data->data(bottom_x, bottom_y , depth) = derivate_act_func(*bottom_data->data(bottom_x, bottom_y , depth), activation_) * *bottom_data_error->data(bottom_x, bottom_y, depth);
                     }
                 }
             }
         }
-
+        delete bottom_data_error;
     }
 
     // update weights

@@ -4,6 +4,7 @@ namespace danknet {
 
 template<typename Dtype>
 FullyConnectedLayer<Dtype>::FullyConnectedLayer(int units,
+                                                Activation activation,
                                                 string name,
                                                 vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
     : Layer<Dtype>(name, bottom, top),
@@ -11,6 +12,8 @@ FullyConnectedLayer<Dtype>::FullyConnectedLayer(int units,
       generator(std::chrono::system_clock::now().time_since_epoch().count())
 {
       units_ = units;
+
+      activation_   = activation;
       //-----------------Blob<Dtype>*---------------
 
       //-------------copy bottom vector-------------
@@ -53,10 +56,8 @@ FullyConnectedLayer<Dtype>::Forward() {
             for(int bottom_unit = 0; bottom_unit < bottom_units; bottom_unit++) {
                 top_ptr[top_unit] += bottom_ptr[bottom_unit] * weights_ptr[bottom_unit];
             }
-            //-------------ReLU activation----------------
-            if(top_ptr[top_unit] < 0) {
-                top_ptr[top_unit] = 0;
-            }
+            //----------------activation------------------
+            top_ptr[top_unit] = act_func(top_ptr[top_unit], activation_);
         }
 
     }
@@ -81,6 +82,7 @@ FullyConnectedLayer<Dtype>::Backward() {
     //-------------------batch--------------------
     for(int batch = 0; batch < bottom->batch_size(); batch++) {
         Data3d<Dtype>* bottom_data = bottom->Data(batch);
+        Data3d<Dtype>* bottom_data_error = new Data3d<Dtype>(bottom_data->shape());
         Data3d<Dtype>* top_data = top->Data(batch);
 
         // calc weights diffs
@@ -95,27 +97,27 @@ FullyConnectedLayer<Dtype>::Backward() {
             }
         }
         // calc error
-        bottom_data->setToZero();
+        bottom_data_error->setToZero();
+        Dtype* bottom_error_ptr = bottom_data_error->data();
+        Dtype* top_ptr = top_data->data();
         for(int top_unit = 0; top_unit < top->depth(); top_unit++) {
-            Dtype* bottom_ptr = bottom_data->data();
             Dtype* weights_ptr = weights->data(top_unit);
-            Dtype* top_ptr = top_data->data();
 
             for(int bottom_unit = 0; bottom_unit < bottom_units; bottom_unit++) {
-                bottom_ptr[bottom_unit] += weights_ptr[bottom_unit] * top_ptr[top_unit];
+                bottom_error_ptr[bottom_unit] += weights_ptr[bottom_unit] * top_ptr[top_unit];
             }
         }
-        //-------------ReLU derivation----------------
-            Dtype* bottom_ptr = bottom_data->data();
-            for(int bottom_unit = 0; bottom_unit < bottom_units; bottom_unit++) {
-                if(isnan(bottom_ptr[bottom_unit])) {
-                    bottom_ptr[bottom_unit] = 0;
-                } else if(bottom_ptr[bottom_unit] < 0) {
-                    bottom_ptr[bottom_unit] = 0;
-                } else {
-                    bottom_ptr[bottom_unit] = bottom_ptr[bottom_unit];
-                }
+        //----------------derivation------------------
+        Dtype* bottom_ptr = bottom_data->data();
+        for(int bottom_unit = 0; bottom_unit < bottom_units; bottom_unit++) {
+
+            if(isnan(bottom_error_ptr[bottom_unit])) {
+                bottom_ptr[bottom_unit] = 0;
+            } else  {
+                bottom_ptr[bottom_unit] = derivate_act_func(bottom_ptr[bottom_unit], activation_) * bottom_error_ptr[bottom_unit];
             }
+        }
+        delete bottom_data_error;
     }
     // update weights
     for(int top_unit = 0; top_unit < top->depth(); top_unit++) {

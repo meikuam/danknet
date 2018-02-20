@@ -16,10 +16,11 @@ class ConvolutionalLayer : public Layer<Dtype> {
                               int depth, int kernels,
                               int stride_w, int stride_h,
                               int pad_w, int pad_h,
+                              Activation activation,
                               string name,
                               vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
 
-    virtual inline layertype type() const {return Convolutional_Layer; }
+    virtual inline Layertype type() const {return Convolutional_Layer; }
 
     virtual vector<Blob<Dtype>*>* Forward();
     virtual vector<Blob<Dtype>*>* Backward();
@@ -29,6 +30,8 @@ private:
     int stride_h_, stride_w_;
     int pad_h_, pad_w_;
     int kernels_, depth_;
+
+    Activation activation_;
 
     Blob<Dtype>*         weights_diff_;
 

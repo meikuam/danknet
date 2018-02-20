@@ -66,9 +66,9 @@ int main(int argc, char *argv[])
                                            train_path,
                                            test_path,
                                            "input", image_data0));
-    net.AddLayer(new ConvolutionalLayer<double>(3, 3, 3, 16, 1, 1, 0, 0, "fc1", image_data0, conv0));
-    net.AddLayer(new FullyConnectedLayer<double>(300, "fc2", conv0, conv1));
-    net.AddLayer(new FullyConnectedLayer<double>(2, "fc3", conv1, fc2));
+    net.AddLayer(new ConvolutionalLayer<double>(3, 3, 3, 16, 1, 1, 0, 0, ReLU, "fc1", image_data0, conv0));
+    net.AddLayer(new FullyConnectedLayer<double>(300, ReLU, "fc2", conv0, conv1));
+    net.AddLayer(new FullyConnectedLayer<double>(2, ReLU, "fc3", conv1, fc2));
     net.AddLayer(new SoftmaxLayer<double>("softmax",fc2, softmax));
     fc2.push_back(image_data0[1]);
     net.AddLayer(new LossLayer<double>("loss", fc2, loss));
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 
     double lr_rate = 0.01;
     double weight_decay = 0.00005;
-    double momentum = 0.7;//0.9;
+    double momentum = 0.8;//0.9;
     double gamma = 0.1;
 
     net.lr_rate(lr_rate);
