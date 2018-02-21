@@ -81,6 +81,14 @@ target_link_libraries(xor Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
 add_executable(edge_detector edge_detector.cpp ${SOURCES} ${HEADERS})
 target_link_libraries(edge_detector Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
 
-##pred_data project
-#add_executable(pred_data pred_data.cpp ${SOURCES} ${HEADERS})
-#target_link_libraries(pred_data Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
+#edge_detector_train project
+add_executable(edge_detector_train edge_detector_train.cpp ${SOURCES} ${HEADERS})
+target_link_libraries(edge_detector_train Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
+
+#pred_data project
+add_executable(pred_data pred_data.cpp ${SOURCES} ${HEADERS})
+target_link_libraries(pred_data Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
+
+#pred_data_train project
+add_executable(pred_data_train pred_data_train.cpp ${SOURCES} ${HEADERS})
+target_link_libraries(pred_data_train Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
