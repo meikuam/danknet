@@ -26,10 +26,10 @@ class Net {
 private:
     Phase phase_;
     string name_;
-    Dtype                lr_rate_;
-    Dtype                weight_decay_;
-    Dtype                momentum_;
-    Dtype                gamma_;
+    Dtype                lr_rate_ = 0;
+    Dtype                weight_decay_ = 0;
+    Dtype                momentum_ = 0;
+    Dtype                gamma_ = 0;
 
     int train_iters = 0;
     int test_iters = 0;

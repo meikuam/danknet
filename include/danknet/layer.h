@@ -87,9 +87,9 @@ protected:
     vector<Blob<Dtype>*> bottom_;
     Blob<Dtype>*         weights_;
 
-    Dtype                lr_rate_;
-    Dtype                weight_decay_;
-    Dtype                momentum_;
+    Dtype                lr_rate_ = 0;
+    Dtype                weight_decay_ = 0;
+    Dtype                momentum_ = 0;
 
 public:
     explicit Layer(string name, vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
