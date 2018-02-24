@@ -10,9 +10,7 @@ ImageDataLayer<Dtype>::ImageDataLayer(int width, int height, int depth,
                                       string test_path,
                                       string name,
                                       vector<Blob<Dtype>*>& top)
-      : Layer<Dtype>(name, *(new vector<Blob<Dtype>*>()), top)//,
-//        distribution(-0.1,0.1),
-//        generator(std::chrono::system_clock::now().time_since_epoch().count())
+      : Layer<Dtype>(name, *(new vector<Blob<Dtype>*>()), top)
 {
     width_ = width;
     height_ = height;
@@ -76,6 +74,60 @@ ImageDataLayer<Dtype>::ImageDataLayer(int width, int height, int depth,
     cout<<"test_images_: "<<test_images_<<endl;
 }
 
+
+
+template<typename Dtype>
+ImageDataLayer<Dtype>::ImageDataLayer(int width, int height, int depth,
+                            int batches,
+                            int labels,
+                            const vector<QString>& train_data, const vector<int> &train_labels,
+                            const vector<QString>& test_data, const vector<int> &test_labels,
+                            string name,
+                            vector<Blob<Dtype>*>& top)
+    : Layer<Dtype>(name, *(new vector<Blob<Dtype>*>()), top)
+{
+    width_ = width;
+    height_ = height;
+    depth_ = depth;
+    labels_ = labels;
+    batches_ = batches;
+
+    //read train images and labels
+
+    train_data_.clear();
+    train_labels_.clear();
+
+    train_data_ = train_data;
+    train_labels_ = train_labels;
+
+    current_train_image_ = 0;
+
+    //read test images and labels
+    test_data_.clear();
+    test_labels_.clear();
+    test_images_ = 0;
+    test_data_ = test_data;
+    test_labels_ = test_labels;
+    current_test_image_ = 0;
+
+    //-------------create top vector--------------
+    this->top_.push_back(new Blob<Dtype>(this->name_ + "_data", Shape(width_, height_, depth_, batches_)));
+    this->top_.push_back(new Blob<Dtype>(this->name_ + "_labels", Shape(1, 1, labels_, batches_)));
+    top = this->top_;
+
+
+    cout<<"ImageDataLayer: "<<name<<endl;
+    cout<<"----------------layer info------------------"<<endl;
+    cout<<"width: "<<width_<<endl;
+    cout<<"height: "<<height_<<endl;
+    cout<<"depth: "<<depth_<<endl;
+    cout<<"batches: "<<batches_<<endl;
+    cout<<"labels: "<<labels_<<endl;
+    cout<<"train_path_: "<<train_path_<<endl;
+    cout<<"test_path_: "<<test_path_<<endl;
+    cout<<"train_images_: "<<train_images_<<endl;
+    cout<<"test_images_: "<<test_images_<<endl;
+}
 
 template<typename Dtype>
 vector<Blob<Dtype>*>*

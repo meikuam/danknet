@@ -23,6 +23,13 @@ class ImageDataLayer : public Layer<Dtype> {
                           string test_path,
                           string name,
                           vector<Blob<Dtype>*>& top);
+    explicit ImageDataLayer(int width, int height, int depth,
+                            int batches,
+                            int labels,
+                            const vector<QString>& train_data, const vector<int>& train_labels,
+                            const vector<QString>& test_data, const vector<int>& test_labels,
+                            string name,
+                            vector<Blob<Dtype>*>& top);
 
     virtual inline Layertype type() const {return Image_Data_Layer; }
 
