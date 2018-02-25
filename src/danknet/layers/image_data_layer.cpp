@@ -125,8 +125,8 @@ ImageDataLayer<Dtype>::ImageDataLayer(int width, int height, int depth,
     cout<<"labels: "<<labels_<<endl;
     cout<<"train_path_: "<<train_path_<<endl;
     cout<<"test_path_: "<<test_path_<<endl;
-    cout<<"train_images_: "<<train_images_<<endl;
-    cout<<"test_images_: "<<test_images_<<endl;
+    cout<<"train_images_: "<<train_data_.size()<<endl;
+    cout<<"test_images_: "<<test_data_.size()<<endl;
 }
 
 template<typename Dtype>
@@ -145,7 +145,7 @@ ImageDataLayer<Dtype>::Forward() {
 
         switch (this->phase_) {
         case TRAIN:
-            if(current_train_image_ >= train_images_) {
+            if(current_train_image_ >= train_data_.size()) {
                 current_train_image_ = 0;
             }
 
@@ -159,7 +159,7 @@ ImageDataLayer<Dtype>::Forward() {
             current_train_image_++;
             break;
         case TEST:
-            if(current_test_image_ >= test_images_) {
+            if(current_test_image_ >= test_data_.size()) {
                 current_test_image_ = 0;
             }
 
