@@ -189,6 +189,7 @@ ConvolutionalLayer<Dtype>::Backward() {
             }
         }
     }
+    delete weights_diff_new;
     return &this->bottom_;
 }
 
