@@ -28,9 +28,11 @@ int main(int argc, char *argv[])
 
     //learning params
     int test_iters = 100;
-    int train_iters = 500;
+    int train_iters = 200;
     int iters = 1000000;
     int step_size = 10000;
+
+    int batch_size = 1;
 
     double lr_rate = 0.0001;
     double weight_decay = 0.000005;
@@ -78,10 +80,10 @@ int main(int argc, char *argv[])
     int train_data_size = train_data_.size() * train_data_percent;
 
     for(int inst = 0; inst < insts; inst++) {
-        cout<<"inst: "<<inst<<endl;
+//        cout<<"inst: "<<inst<<endl;
         for(int i = 0; i < train_data_size; i++) {
             int item = distribution(generator);
-            cout<<item<<" ";
+//            cout<<item<<" ";
             train_data[inst].push_back(train_data_[item]);
             train_labels[inst].push_back(train_labels_[item]);
         }
@@ -97,9 +99,10 @@ int main(int argc, char *argv[])
                                   fc6(insts), softmax(insts),
                                   loss(insts);
 
+    int num = 30;
     //create nets
     for(int i = 0; i < insts; i++) {
-        net[i].AddLayer(new ImageDataLayer<double>(64, 64, 3, 1, 2,
+        net[i].AddLayer(new ImageDataLayer<double>(64, 64, 3, batch_size, 2,
                                                    train_data[i], train_labels[i],
                                                    test_data_, test_labels_,
                                                    "input0", image_data0[i]));
@@ -121,13 +124,16 @@ int main(int argc, char *argv[])
         net[i].momentum(momentum);
         net[i].gamma(gamma);
         net[i].step_size(step_size);
+//        net[i].WeightsFromHDF5("weights/net" + to_string(i) + " " + to_string(num) + ".hdf5");
     }
 
     cout<<"Forward"<<endl;
 //    net.WeightsFromHDF5("net110.hdf5");
 //    net.WeightsToHDF5("weights/net.hdf5");
 
+    //train iterations
     for(int k = 0; k < iters; k++) {
+        // phase TRAIN
         for(int inst = 0; inst < insts; inst++) {
             cout<<inst<<" lr_rate: "<<net[inst].lr_rate()<<endl;
             net[inst].phase(TRAIN);
@@ -144,6 +150,7 @@ int main(int argc, char *argv[])
                     double train_accuracy = 0;
                     double train_loss = 0;
                     double fc_data[2];
+
 
                     net[tid].Forward();
 
@@ -162,7 +169,7 @@ int main(int argc, char *argv[])
                     train_loss /= softmax[tid][0]-> batch_size();
                     #pragma omp critical
                     {
-                        cout<<k * (train_iters+test_iters) + i<<" tid: "<<tid<<" avg accuracy: "<<train_accuracy<<" avg loss: "<<train_loss<<" fc2: "<<fc_data[0]<<" "<<fc_data[1]<<endl;
+                        cout<<k * (train_iters+test_iters) + i<<" tid: "<<tid<<" avg accuracy: "<<train_accuracy<<" avg loss: "<<train_loss<<" fc6: "<<fc_data[0]<<" "<<fc_data[1]<<endl;
                     }
                     #pragma omp critical
                     {
@@ -182,51 +189,82 @@ int main(int argc, char *argv[])
             cout<<k * (train_iters+test_iters) + i<<" Avg accuracy: "<<train_accuracy_<<" Avg loss: "<<train_loss_<<endl;
         }
 
+
+        //phase TEST
+        for(int inst = 0; inst < insts; inst++) {
+            net[inst].phase(TEST);
+            cout<<inst<<" phase_: TEST"<<endl;
+        }
+        double test_accuracy = 0;
+        double test_loss = 0;
+
+        //test iterations
+        for(int i = 0; i < test_iters; i++) {
+            cout<<k * (test_iters + train_iters) + train_iters + i<<" ";
+            //parallel Forward for each instance
+#pragma omp parallel for num_threads(insts)
+            for(int inst = 0; inst < insts; inst++) {
+                int tid = omp_get_thread_num();                     // thread id
+                net[tid].Forward();
+            }
+
+            double accuracy = 0;
+            double loss_ = 0;
+            double fc_data[batch_size][2];
+            //get top data from each instance
+            for(int inst = 0; inst < insts; inst++) {
+                //batch iterations
+                for(int b = 0; b < batch_size; b++) {
+                    fc_data[b][0] += *fc6[inst][0]->data(b, 0, 0, 0); //*softmax[inst][0]->data(b, 0, 0, 0);
+                    fc_data[b][1] += *fc6[inst][0]->data(b, 0, 0, 1); //*softmax[inst][0]->data(b, 0, 0, 1);
+                }
+            }
+            for(int b = 0; b < batch_size; b++) {
+                //get average top data
+                fc_data[b][0] /= 1.0 * insts;
+                fc_data[b][1] /= 1.0 * insts;
+                //calc accuracy in batch
+//                cout<<fc_data[b][0]<<" "<<fc_data[b][1];
+                if(fc_data[b][1] > fc_data[b][0]) {
+                    if(*image_data0[0][1]->data(b, 0, 0, 0) == 1) {
+                        cout<<" + ";
+                        //true positive
+                        accuracy++;
+                    } else {
+                        cout<<" - ";
+                        //false positive
+                    }
+                } else {
+                    if(*image_data0[0][1]->data(b, 0, 0, 0) == 0) {
+                        //true negative
+                        cout<<" + ";
+                        accuracy++;
+                    } else {
+                        cout<<" - ";
+                        //false negative
+                    }
+                }
+                loss_ += (fc_data[b][0] - *image_data0[0][1]->data(b, 0, 0, 0)) * (fc_data[b][0] - *image_data0[0][1]->data(b, 0, 0, 0));
+
+            }
+            accuracy /= batch_size;
+            loss_ /= batch_size * 2.0;
+
+            cout<<" avg accuracy: "<<accuracy<<" avg loss: "<<loss_<<endl;
+
+            for(int b = 0; b < batch_size; b++) {
+            }
+            test_accuracy += accuracy;
+            test_loss += loss_;
+        }
+        cout<<"Avg accuracy: "<< (test_accuracy * 1.0) / (test_iters * 1.0)<<" Avg loss: "<<(test_loss) / (test_iters * 1.0)<<endl;
+//        loss_ /= test_iters * 1.0 * loss[0]->batch_size();
+//        cout<<"test loss: "<<loss_<<endl;
+
+
         for(int inst = 0; inst < insts; inst++) {
             net[inst].WeightsToHDF5("weights/net" + to_string(inst) + " " + to_string(k) + ".hdf5");
         }
-//        net.phase(TEST);
-//        cout<<"phase_: TEST"<<endl;
-//        double test_accuracy = 0;
-//        double test_loss = 0;
-
-//        double loss_ = 0;
-//        int accuracy = 0;
-//        double fc_data[2];
-//        for(int i = 0; i < test_iters; i++) {
-//            net.Forward();
-
-//            for(int b = 0; b < softmax[0]-> batch_size(); b++) {
-//                if(((*image_data0[1]->data(b, 0, 0, 0) == 0) ? 1 : 0) == *softmax[0]->data(b, 0, 0, 0)) {
-//                    test_accuracy++;
-//                }
-//                test_loss += *loss[0]->data(b, 0, 0, 0);
-//                fc_data[0] += *net_top[0]->data(b, 0, 0, 0);
-//                fc_data[1] += *net_top[0]->data(b, 0, 0, 1);
-
-//            }
-//            fc_data[0] /= 1.0 * softmax[0]-> batch_size();
-//            fc_data[1] /= 1.0 * softmax[0]-> batch_size();
-//            test_accuracy /= softmax[0]-> batch_size();
-//            test_loss /= softmax[0]-> batch_size();
-//            cout<<k * (test_iters+test_iters) + i<<" avg accuracy: "<<test_accuracy<<" avg loss: "<<test_loss<<" fc2: "<<fc_data[0]<<" "<<fc_data[1]<<endl;
-//            test_accuracy = 0;
-//            test_loss = 0;
-
-//            fc_data[0] = fc_data[0] = 0;
-
-
-//            for(int b = 0; b < loss[0]->batch_size(); b++) {
-//                if(((*image_data0[1]->data(b, 0, 0, 0) == 0 )? 1 : 0) == *softmax[0]->data(b, 0, 0, 0)) {
-//                    accuracy++;
-//                }
-//                loss_ += *loss[0]->data(b, 0, 0, 0);
-//            }
-//        }
-//        cout<<"accuracy: "<< (accuracy * 1.0) / (test_iters * 1.0 * loss[0]->batch_size()) <<endl;
-//        loss_ /= test_iters * 1.0 * loss[0]->batch_size();
-//        cout<<"test loss: "<<loss_<<endl;
-//        net.WeightsToHDF5("weights/net" + to_string(k) + ".hdf5");
     }
 
 	return 0;
