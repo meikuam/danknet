@@ -3,7 +3,7 @@ namespace danknet {
 
 
 template<typename Dtype>
-LossLayer<Dtype>::LossLayer(string name,
+LossLayer<Dtype>::LossLayer(Activation activation, string name,
                             vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
     : Layer<Dtype>(name, bottom, top) {
     //-------------copy bottom vector-------------
@@ -70,7 +70,7 @@ LossLayer<Dtype>::Backward() {
         for(int x = 0; x < w; x++) {
             for(int y = 0; y < h; y++) {
                 for(int k = 0; k < K; k++) {
-                    *pred_data->data(x, y, k) = - (*labels_data->data(x, y, k) - *pred_data->data(x, y, k));// * this->lr_rate_;
+                    *pred_data->data(x, y, k) = (*pred_data->data(x, y, k) - *labels_data->data(x, y, k)) * derivate_act_func(*pred_data->data(x, y, k), activation_);// * this->lr_rate_;
                 }
             }
         }

@@ -10,7 +10,8 @@ namespace danknet {
 template <typename Dtype>
 class LossLayer : public Layer<Dtype> {
  public:
-  explicit LossLayer(string name,
+  explicit LossLayer(Activation activation,
+                     string name,
                      vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
 
     virtual inline Layertype type() const {return Loss_Layer; }
@@ -19,6 +20,7 @@ class LossLayer : public Layer<Dtype> {
     virtual vector<Blob<Dtype>*>* Backward();
 
 private:
+    Activation activation_;
 };
 
 } // namespace danknet
