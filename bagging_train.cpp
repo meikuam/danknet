@@ -18,26 +18,28 @@ bool fexists(const char *filename) {
 
 int main(int argc, char *argv[])
 {
+//    std::locale cp1251_locale("ru_RU.CP1251");
+//    std::locale::global(cp1251_locale);
     cout<<"start"<<endl;
     //--------------------------------------------
     if(argc < 3)
         return 0;
 
     int insts = 4; //net instances - number of cores
-    double train_data_percent = 0.25;
+    double train_data_percent = 0.6;
 
     //learning params
-    int test_iters = 100;
-    int train_iters = 200;
+    int test_iters = 10;
+    int train_iters = 100;
     int iters = 1000000;
-    int step_size = 10000;
+    int step_size = 1000;
 
-    int batch_size = 1;
+    int batch_size = 15;
 
     double lr_rate = 0.0001;
     double weight_decay = 0.000005;
-    double momentum = 0.0;
-    double gamma = 0.1;
+    double momentum = 0.5;
+    double gamma = 0.2;
 
 
 
@@ -99,7 +101,7 @@ int main(int argc, char *argv[])
                                   fc6(insts), softmax(insts),
                                   loss(insts);
 
-    int num = 30;
+//    int num = 30;
     //create nets
     for(int i = 0; i < insts; i++) {
         net[i].AddLayer(new ImageDataLayer<double>(64, 64, 3, batch_size, 2,
@@ -107,17 +109,17 @@ int main(int argc, char *argv[])
                                                    test_data_, test_labels_,
                                                    "input0", image_data0[i]));
 
-        net[i].AddLayer(new ConvolutionalLayer<double>(5, 5, 3, 32, 1, 1, 0, 0, leakyReLU, "conv1", image_data0[i], conv1[i]));
+        net[i].AddLayer(new ConvolutionalLayer<double>(5, 5, 3, 32, 1, 1, 0, 0, ReLU, "conv1", image_data0[i], conv1[i]));
         net[i].AddLayer(new PoolingLayer<double>(5, 5, 5, 5, 0, 0, "pool2", conv1[i], pool2[i]));
-        net[i].AddLayer(new ConvolutionalLayer<double>(5, 5, 32, 64, 1, 1, 0, 0, leakyReLU, "conv3", pool2[i], conv3[i]));
+        net[i].AddLayer(new ConvolutionalLayer<double>(5, 5, 32, 64, 1, 1, 0, 0, ReLU, "conv3", pool2[i], conv3[i]));
         net[i].AddLayer(new PoolingLayer<double>(3, 3, 3, 3, 0, 0, "pool4", conv3[i], pool4[i]));
-        net[i].AddLayer(new FullyConnectedLayer<double>(800, leakyReLU, "fc5", pool4[i], fc5[i]));
-        net[i].AddLayer(new FullyConnectedLayer<double>(2, leakyReLU, "fc6", fc5[i], fc6[i]));
+        net[i].AddLayer(new FullyConnectedLayer<double>(300, ReLU, "fc5", pool4[i], fc5[i]));
+        net[i].AddLayer(new FullyConnectedLayer<double>(2, ReLU, "fc6", fc5[i], fc6[i]));
 
         vector<Blob<double>*> &net_top = fc6[i];
         net_top.push_back(image_data0[i][1]);
-        net[i].AddLayer(new SoftmaxLayer<double>("softmax", net_top, softmax[i]));
-        net[i].AddLayer(new LossLayer<double>("loss", net_top, loss[i]));
+//        net[i].AddLayer(new SoftmaxLayer<double>("softmax", net_top, softmax[i]));
+        net[i].AddLayer(new LossLayer<double>(ReLU, "loss", net_top, loss[i]));
 
         net[i].lr_rate(lr_rate);
         net[i].weight_decay(weight_decay);
@@ -142,8 +144,6 @@ int main(int argc, char *argv[])
         for(int i = 0; i < train_iters; i++) {
             double train_accuracy_ = 0;
             double train_loss_ = 0;
-//#pragma omp parallel num_threads(insts)
-//            {
 #pragma omp parallel for num_threads(insts)
                 for(int inst = 0; inst < insts; inst++) {
                     int tid = omp_get_thread_num();                     // thread id
@@ -151,38 +151,45 @@ int main(int argc, char *argv[])
                     double train_loss = 0;
                     double fc_data[2];
 
-
                     net[tid].Forward();
 
-                    for(int b = 0; b < softmax[tid][0]-> batch_size(); b++) {
-                        if(((*image_data0[tid][1]->data(b, 0, 0, 0) == 0) ? 1 : 0) == *softmax[tid][0]->data(b, 0, 0, 0)) {
-                            train_accuracy++;
+                    for(int b = 0; b < batch_size; b++) {
+//                        if(((*image_data0[tid][1]->data(b, 0, 0, 0) == 0) ? 0 : 1) == *softmax[tid][0]->data(b, 0, 0, 0)) {
+                        if(*fc6[tid][0]->data(b, 0, 0, 1) > *fc6[tid][0]->data(b, 0, 0, 0)) {
+                            if(*image_data0[0][1]->data(b, 0, 0, 0) == 1) {
+                                //true positive
+                                train_accuracy++;
+                            } else {
+                                //false positive
+                            }
+                        } else {
+                            if(*image_data0[0][1]->data(b, 0, 0, 0) == 0) {
+                                //true negative
+                                train_accuracy++;
+                            } else {
+                                //false negative
+                            }
                         }
                         train_loss += *loss[tid][0]->data(b, 0, 0, 0);
                         fc_data[0] += *fc6[tid][0]->data(b, 0, 0, 0);
                         fc_data[1] += *fc6[tid][0]->data(b, 0, 0, 1);
 
                     }
-                    fc_data[0] /= 1.0 * softmax[tid][0]-> batch_size();
-                    fc_data[1] /= 1.0 * softmax[tid][0]-> batch_size();
-                    train_accuracy /= softmax[tid][0]-> batch_size();
-                    train_loss /= softmax[tid][0]-> batch_size();
-                    #pragma omp critical
-                    {
-                        cout<<k * (train_iters+test_iters) + i<<" tid: "<<tid<<" avg accuracy: "<<train_accuracy<<" avg loss: "<<train_loss<<" fc6: "<<fc_data[0]<<" "<<fc_data[1]<<endl;
-                    }
+                    fc_data[0] /= 1.0 * batch_size;
+                    fc_data[1] /= 1.0 * batch_size;
+                    train_accuracy /= batch_size;
+                    train_loss /= batch_size;
+                    cout<<k * (train_iters+test_iters) + i<<" tid: "<<tid<<" avg accuracy: "<<train_accuracy<<" avg loss: "<<train_loss<<" fc6: "<<fc_data[0]<<" "<<fc_data[1]<<endl;
+
                     #pragma omp critical
                     {
                         train_accuracy_ += train_accuracy;
                         train_loss_ += train_loss;
                     }
-                    train_accuracy = 0;
-                    train_loss = 0;
                     fc_data[0] = fc_data[0] = 0;
 
                     net[tid].Backward();
                 }
-//            }
             train_accuracy_ /= 1.0 * insts;
             train_loss_ /= 1.0 * insts;
 
@@ -250,7 +257,7 @@ int main(int argc, char *argv[])
             accuracy /= batch_size;
             loss_ /= batch_size * 2.0;
 
-            cout<<" avg accuracy: "<<accuracy<<" avg loss: "<<loss_<<endl;
+            cout<<" accuracy: "<<accuracy<<" loss: "<<loss_<<endl;
 
             for(int b = 0; b < batch_size; b++) {
             }
