@@ -30,14 +30,14 @@ int main(int argc, char *argv[])
 
     //learning params
     int test_iters = 10;
-    int train_iters = 100;
+    int train_iters = 20;
     int iters = 1000000;
     int step_size = 1000;
 
-    int batch_size = 15;
+    int batch_size = 50;
 
-    double lr_rate = 0.0001;
-    double weight_decay = 0.000005;
+    double lr_rate = 0.001;
+    double weight_decay = 0.00005;
     double momentum = 0.5;
     double gamma = 0.2;
 
@@ -77,21 +77,27 @@ int main(int argc, char *argv[])
     vector<vector<QString>> train_data(insts);
     vector<vector<int>>     train_labels(insts);
 
-    default_random_engine generator(chrono::system_clock::now().time_since_epoch().count());
-    uniform_int_distribution<int> distribution(0, train_data_.size() - 1);
-    int train_data_size = train_data_.size() * train_data_percent;
+//    default_random_engine generator(chrono::system_clock::now().time_since_epoch().count());
+//    uniform_int_distribution<int> distribution(0, train_data_.size() - 1);
+//    int train_data_size = train_data_.size() * train_data_percent;
 
+//    for(int inst = 0; inst < insts; inst++) {
+////        cout<<"inst: "<<inst<<endl;
+//        for(int i = 0; i < train_data_size; i++) {
+//            int item = distribution(generator);
+////            cout<<item<<" ";
+//            train_data[inst].push_back(train_data_[item]);
+//            train_labels[inst].push_back(train_labels_[item]);
+//        }
+//        cout<<"items in "<<inst<<" "<<train_data[inst].size()<<endl;
+//    }
+    int train_data_len = train_data_.size() / insts;
     for(int inst = 0; inst < insts; inst++) {
-//        cout<<"inst: "<<inst<<endl;
-        for(int i = 0; i < train_data_size; i++) {
-            int item = distribution(generator);
-//            cout<<item<<" ";
-            train_data[inst].push_back(train_data_[item]);
-            train_labels[inst].push_back(train_labels_[item]);
+        for(int i = inst * train_data_len; i < (inst + 1) * train_data_len; i++) {
+             train_data[inst].push_back(train_data_[i]);
+             train_labels[inst].push_back(train_labels_[i]);
         }
-        cout<<"items in "<<inst<<" "<<train_data[inst].size()<<endl;
     }
-
     //create vector of nets
     vector<Net<double>> net(insts);
     //create vector of data
@@ -109,17 +115,17 @@ int main(int argc, char *argv[])
                                                    test_data_, test_labels_,
                                                    "input0", image_data0[i]));
 
-        net[i].AddLayer(new ConvolutionalLayer<double>(5, 5, 3, 32, 1, 1, 0, 0, ReLU, "conv1", image_data0[i], conv1[i]));
+        net[i].AddLayer(new ConvolutionalLayer<double>(5, 5, 3, 32, 1, 1, 0, 0, leakyReLU, "conv1", image_data0[i], conv1[i]));
         net[i].AddLayer(new PoolingLayer<double>(5, 5, 5, 5, 0, 0, "pool2", conv1[i], pool2[i]));
-        net[i].AddLayer(new ConvolutionalLayer<double>(5, 5, 32, 64, 1, 1, 0, 0, ReLU, "conv3", pool2[i], conv3[i]));
+        net[i].AddLayer(new ConvolutionalLayer<double>(5, 5, 32, 64, 1, 1, 0, 0, leakyReLU, "conv3", pool2[i], conv3[i]));
         net[i].AddLayer(new PoolingLayer<double>(3, 3, 3, 3, 0, 0, "pool4", conv3[i], pool4[i]));
-        net[i].AddLayer(new FullyConnectedLayer<double>(300, ReLU, "fc5", pool4[i], fc5[i]));
-        net[i].AddLayer(new FullyConnectedLayer<double>(2, ReLU, "fc6", fc5[i], fc6[i]));
+        net[i].AddLayer(new FullyConnectedLayer<double>(300, leakyReLU, "fc5", pool4[i], fc5[i]));
+        net[i].AddLayer(new FullyConnectedLayer<double>(2, leakyReLU, "fc6", fc5[i], fc6[i]));
 
         vector<Blob<double>*> &net_top = fc6[i];
         net_top.push_back(image_data0[i][1]);
 //        net[i].AddLayer(new SoftmaxLayer<double>("softmax", net_top, softmax[i]));
-        net[i].AddLayer(new LossLayer<double>(ReLU, "loss", net_top, loss[i]));
+        net[i].AddLayer(new SoftmaxLossLayer<double>(leakyReLU, "loss", net_top, loss[i]));
 
         net[i].lr_rate(lr_rate);
         net[i].weight_decay(weight_decay);

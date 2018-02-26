@@ -212,7 +212,14 @@ ConvolutionalLayer<Dtype>::initWeights() {
        for(int c = 0; c < weights_shape.depth(); c++) {
            for(int x = 0; x < weights_shape.width(); x++) {
                for(int y = 0; y < weights_shape.height(); y++) {
-                   *weights->data(k, x, y, c) = (Dtype)(distribution(generator)) * sqrt(2.0 / max_num);
+                   *weights->data(k, x, y, c) = (Dtype)(distribution(generator)) * 0.01;
+//                   for(int y = 0; y < weights_shape.height(); y++) {
+//                       if(activation_ == ReLU || activation_ == leakyReLU) {
+//                           *weights->data(k, x, y, c) = (Dtype)(distribution(generator)) * sqrt( 1.0 / max_num);
+//                       } else {
+//                           *weights->data(k, x, y, c) = (Dtype)(distribution(generator)) / sqrt(max_num);
+//                       }
+//                   }
                }
            }
        }
