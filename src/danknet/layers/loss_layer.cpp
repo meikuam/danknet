@@ -76,16 +76,16 @@ LossLayer<Dtype>::Backward() {
         }
     }
 
-    for(int batch = 0; batch < pred->batch_size(); batch++) {
-        Data3d<Dtype>* pred_data = pred->Data(batch);
-        for(int x = 0; x < pred->width(); x++) {
-            for(int y = 0; y < pred->height(); y++) {
-                for(int k = 0; k < pred->depth(); k++) {
-                    *pred_data->data(x, y, k) /= pred->batch_size();
-                }
-            }
-        }
-    }
+//    for(int batch = 0; batch < pred->batch_size(); batch++) {
+//        Data3d<Dtype>* pred_data = pred->Data(batch);
+//        for(int x = 0; x < pred->width(); x++) {
+//            for(int y = 0; y < pred->height(); y++) {
+//                for(int k = 0; k < pred->depth(); k++) {
+//                    *pred_data->data(x, y, k) /= pred->batch_size();
+//                }
+//            }
+//        }
+//    }
 
     return &this->bottom_;
 }
