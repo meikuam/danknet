@@ -49,7 +49,8 @@ enum Phase {
 enum Activation {
     ReLU,
     leakyReLU,
-    Sigmoid
+    Sigmoid,
+    Tanh
 };
 
 template <typename Dtype>
@@ -62,7 +63,10 @@ Dtype act_func(Dtype x, Activation act) {
         return x > 0 ? x : x * 0.001;
         break;
     case Sigmoid:
-        return 0.5 * tanh(0.5 * x) + 0.5;//1.0 / (1.0 + exp(- x));
+        return 1.0 / (1.0 + exp(- 0.5 * x));
+        break;
+    case Tanh:
+        return 0.5 * tanh(0.5 * x) + 05;
         break;
     }
 }
@@ -78,6 +82,9 @@ Dtype derivate_act_func(Dtype x, Activation act) {
         break;
     case Sigmoid:
         return x * (1.0 - x);
+        break;
+    case Tanh:
+        return 1.0 - x * x;
         break;
     }
 }
