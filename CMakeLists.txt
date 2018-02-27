@@ -19,6 +19,7 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Gui REQUIRED)
+find_package(Qt5Charts REQUIRED)
 find_package(HDF5 COMPONENTS C CXX HL REQUIRED)
 #find_package(OpenCV REQUIRED)
 
@@ -87,18 +88,18 @@ set(HEADERS
 #add_executable(edge_detector_train edge_detector_train.cpp ${SOURCES} ${HEADERS})
 #target_link_libraries(edge_detector_train Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
 
-##pred_data project
-#add_executable(pred_data pred_data.cpp ${SOURCES} ${HEADERS})
-#target_link_libraries(pred_data Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
+#pred_data project
+add_executable(pred_data pred_data.cpp ${SOURCES} ${HEADERS})
+target_link_libraries(pred_data Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
 
-##pred_data_train project
-#add_executable(pred_data_train pred_data_train.cpp ${SOURCES} ${HEADERS})
-#target_link_libraries(pred_data_train Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
+#pred_data_train project
+add_executable(pred_data_train pred_data_train.cpp ${SOURCES} ${HEADERS})
+target_link_libraries(pred_data_train Qt5::Core Qt5::Gui Qt5::Charts ${HDF5_CXX_LIBRARIES})
 
-#bagging project
-add_executable(bagging bagging.cpp ${SOURCES} ${HEADERS})
-target_link_libraries(bagging Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
+##bagging project
+#add_executable(bagging bagging.cpp ${SOURCES} ${HEADERS})
+#target_link_libraries(bagging Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
 
-#bagging_train project
-add_executable(bagging_train bagging_train.cpp ${SOURCES} ${HEADERS})
-target_link_libraries(bagging_train Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
+##bagging_train project
+#add_executable(bagging_train bagging_train.cpp ${SOURCES} ${HEADERS})
+#target_link_libraries(bagging_train Qt5::Core Qt5::Gui ${HDF5_CXX_LIBRARIES})
