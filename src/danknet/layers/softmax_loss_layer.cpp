@@ -1,4 +1,5 @@
 #include "softmax_loss_layer.h"
+#include <iostream>
 namespace danknet {
 
 
@@ -95,19 +96,20 @@ SoftmaxLossLayer<Dtype>::Backward() {
                 max_num = k;
             }
         }
-        int label = 0;
-        for(int k = 0; k < K; k++) {
-            if(*labels_data->data(0, 0, k) == 1) {
-                label = k;
-            }
-        }
+//        int label = 0;
+//        for(int k = 0; k < K; k++) {
+//            std::cout<<*labels_data->data(0, 0, k)<<std::endl;
+//            if(*labels_data->data(0, 0, k) > 0) {
+//                label = k;
+//            }
+//        }
         //
         for(int k = 0; k < K; k++) {
-            if(k == label) {
-                *pred_data->data(0, 0, k) = -exps[k];
-            } else {
-                *pred_data->data(0, 0, k) = exps[k];
-            }
+            *pred_data->data(0, 0, k) = exps[k] - *labels_data->data(0, 0, k);
+//            if(k == label) { = -exps[k];
+//            } else {
+//                *pred_data->data(0, 0, k) = ;
+//            }
         }
         delete exps;
     }

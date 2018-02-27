@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
         net[i].AddLayer(new PoolingLayer<double>(3, 3, 3, 3, 0, 0, "pool4", conv3[i], pool4[i]));
         net[i].AddLayer(new FullyConnectedLayer<double>(800, leakyReLU, "fc5", pool4[i], fc5[i]));
         net[i].AddLayer(new FullyConnectedLayer<double>(2, leakyReLU, "fc6", fc5[i], fc6[i]));
-        net[i].WeightsFromHDF5("weights/net" + to_string(i) + ".hdf5");
+        net[i].WeightsFromHDF5("net" + to_string(i) + ".hdf5");
         net[i].phase(TEST);
     }
 
