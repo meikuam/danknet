@@ -76,22 +76,24 @@ DataLayer<Dtype>::Forward() {
                 current_train_item_ = 0;
             }
             for(int d = 0; d < data_depth_; d++) {
-                *top_data->data(batch, 0, 0, d) = train_data_[current_train_item_++];
+                *top_data->data(batch, 0, 0, d) = train_data_[current_train_item_ + d];
             }
             for(int l = 0; l < label_depth_; l++) {
-                *top_label->data(batch, 0, 0, l) = train_data_[current_train_item_++];
+                *top_label->data(batch, 0, 0, l) = train_data_[current_train_item_ + data_depth_ + l];
             }
+            current_train_item_ += label_depth_;
             break;
         case TEST:
             if(current_test_item_ + data_depth_ + label_depth_ >= test_data_.size()) {
                 current_test_item_ = 0;
             }
             for(int d = 0; d < data_depth_; d++) {
-                *top_data->data(batch, 0, 0, d) = test_data_[current_test_item_++];
+                *top_data->data(batch, 0, 0, d) = test_data_[current_test_item_ + d];
             }
             for(int l = 0; l < label_depth_; l++) {
-                *top_label->data(batch, 0, 0, l) = test_data_[current_test_item_++];
+                *top_label->data(batch, 0, 0, l) = test_data_[current_test_item_ + data_depth_ + l];
             }
+            current_test_item_ += label_depth_;
             break;
         }
     }
