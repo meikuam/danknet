@@ -33,7 +33,7 @@ private:
 
     int train_iters = 0;
     int test_iters = 0;
-    int step_size_ = 0;
+    int step_size_ = -1;
 
     vector<Layer<Dtype>*> layers_;
     map<string, Blob<Dtype>*> blobs_;

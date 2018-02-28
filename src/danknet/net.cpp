@@ -72,6 +72,7 @@ void Net<Dtype>::WeightsFromHDF5(string filename) {
                 }
                 break;
             }
+            case Kohonen_Layer:
             case Fully_Connected_Layer:
             {
                 if(layers_[l]->weights()->name() == name) {
@@ -142,36 +143,41 @@ void Net<Dtype>::WeightsToHDF5(string filename) {
             dataset.close();
             break;
         }
+        case Kohonen_Layer:
         case Fully_Connected_Layer:
         {
             Blob<Dtype>* layer_weights = layers_[l]->weights();
             Shape weights_shape = layer_weights->shape();
             hsize_t *dims;
-            switch (weights_shape.dims()) {
-            case 1:
-                dims = new hsize_t[1] {(hsize_t)weights_shape.batch()};
-                break;
-            case 2:
-                dims = new hsize_t[2] {(hsize_t)weights_shape.batch(),
-                                       (hsize_t)weights_shape.depth()};
-                break;
-            case 3:
-                dims = new hsize_t[3] {(hsize_t)weights_shape.batch(),
-                                       (hsize_t)weights_shape.depth(),
-                                       (hsize_t)weights_shape.width()};
-                break;
-            case 4:
-                dims = new hsize_t[4] {(hsize_t)weights_shape.batch(),
-                                       (hsize_t)weights_shape.depth(),
-                                       (hsize_t)weights_shape.width(),
-                                       (hsize_t)weights_shape.height()};
-                break;
-            }
+//            switch (weights_shape.dims()) {
+//            case 1:
+//                dims = new hsize_t[1] {(hsize_t)weights_shape.batch()};
+//                break;
+//            case 2:
+//                dims = new hsize_t[2] {(hsize_t)weights_shape.batch(),
+//                                       (hsize_t)weights_shape.depth()};
+//                break;
+//            case 3:
+//                dims = new hsize_t[3] {(hsize_t)weights_shape.batch(),
+//                                       (hsize_t)weights_shape.depth(),
+//                                       (hsize_t)weights_shape.width()};
+//                break;
+//            case 4:
+//                dims = new hsize_t[4] {(hsize_t)weights_shape.batch(),
+//                                       (hsize_t)weights_shape.depth(),
+//                                       (hsize_t)weights_shape.width(),
+//                                       (hsize_t)weights_shape.height()};
+//                break;
+//            }
 
+            dims = new hsize_t[4] {(hsize_t)weights_shape.batch(),
+                                   (hsize_t)weights_shape.depth(),
+                                   (hsize_t)weights_shape.width(),
+                                   (hsize_t)weights_shape.height()};
 
             DataSet dataset = hdf5file.createDataSet(layer_weights->name(),
                                                      PredType::NATIVE_DOUBLE,
-                                                     DataSpace(weights_shape.dims(), dims));
+                                                     DataSpace(4, dims));
 
             Dtype* weights = new Dtype[weights_shape.width() * weights_shape.height() * weights_shape.depth() * weights_shape.batch() ];
             for(int k = 0; k < weights_shape.batch(); k++) {

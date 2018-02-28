@@ -12,7 +12,7 @@ namespace danknet {
 template <typename Dtype>
 class KohonenLayer : public Layer<Dtype> {
  public:
-  explicit KohonenLayer(string name,
+  explicit KohonenLayer(int width, int height, string name,
                         vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top);
 
     virtual inline Layertype type() const {return Kohonen_Layer; }

@@ -30,13 +30,21 @@ int main(int argc, char *argv[])
     int train_iters = 10;
     int iters = 10;
 
+
+    int data_depth = 8;
+    int data_labels = 2;
+    int width = 4;
+    int height = 4;
+
     //data Blobs
-    vector<Blob<double>*>       input_data0;
+    vector<Blob<double>*>       input_data0,
+                                kohonen_top;
 
     //create Net
     cout<<"create Net"<<endl;
     Net<double> net;
-
+    net.AddLayer(new TextDataLayer<double>(data_depth, data_labels, batch_size, input_train_path.toStdString(), input_test_path.toStdString(), "text input", input_data0));
+    net.AddLayer(new KohonenLayer<double>(width, height, "kohonen", input_data0, kohonen_top));
     Data3d<double>* data;
 
     cout<<"---------------------Forward----------------------"<<endl;
@@ -48,7 +56,7 @@ int main(int argc, char *argv[])
             net.Forward();
             for(int b = 0; b < batch_size; b++) {
             }
-            net.Backward();
+//            net.Backward();
         }
         net.phase(TEST);
         cout<<"phase_: TEST"<<endl;
@@ -56,7 +64,7 @@ int main(int argc, char *argv[])
             net.Forward();
         }
     }
-    net.WeightsToHDF5("net" + to_string(k) + ".hdf5");
+    net.WeightsToHDF5("net.hdf5");
 
     return 0;
 }
