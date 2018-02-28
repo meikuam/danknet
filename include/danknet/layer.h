@@ -39,7 +39,8 @@ enum Layertype {
     Softmax_Layer,
     Data_Layer,
     Image_Data_Layer,
-    Softmax_Loss_Layer
+    Softmax_Loss_Layer,
+    Kohonen_Layer
 };
 
 enum Phase {
