@@ -42,6 +42,7 @@ set(SOURCES
 
     src/danknet/layers/kohonen_layer.cpp
     src/danknet/layers/data_layer.cpp
+    src/danknet/layers/text_data_layer.cpp
     src/danknet/layers/image_data_layer.cpp
     src/danknet/layers/convolutional_layer.cpp
     src/danknet/layers/fully_connected_layer.cpp
@@ -65,6 +66,7 @@ set(HEADERS
 
     include/danknet/layers/kohonen_layer.h
     include/danknet/layers/data_layer.h
+    include/danknet/layers/text_data_layer.h
     include/danknet/layers/image_data_layer.h
     include/danknet/layers/convolutional_layer.h
     include/danknet/layers/fully_connected_layer.h
