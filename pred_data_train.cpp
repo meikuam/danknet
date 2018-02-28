@@ -33,9 +33,6 @@ int main(int argc, char *argv[])
     series2->setColor(Qt::red);
 
     QLineSeries *loss_series = new QLineSeries();
-    loss_series->setPointLabelsVisible(true);    // is false by default
-    loss_series->setPointLabelsColor(Qt::black);
-    loss_series->setPointLabelsFormat("@yPoint");
     loss_series->setColor(Qt::black);
 
 
@@ -46,7 +43,7 @@ int main(int argc, char *argv[])
     cout<<"start"<<endl;
 
     if(argc < 3) {
-        cout<<"pred_data_train train.txt test.txt input_depth batch_size lr_rate momentum weight_decay"<<endl;
+        cout<<"pred_data_train train.txt test.txt input_depth batch_size show_grapth lr_rate momentum weight_decay"<<endl;
         return 0;
     }
 
@@ -55,16 +52,17 @@ int main(int argc, char *argv[])
 //    QString input_train_path = "/home/hotoru/datasets/dollar/dollar_diff_train.txt";
 //    QString input_test_path = "/home/hotoru/datasets/dollar/dollar_diff_test.txt";
 
-    int input_depth = 10;
+    int input_depth = 5;
     int output_depth = 1;
-    int batch_size = 1;
+    int batch_size = 5;
 
-    double lr_rate = 0.001;
-    double weight_decay = 0.00000;
+    double lr_rate = 0.01;
+    double weight_decay = 0.000000;
     double momentum = 0.1;
-    double gamma = 1;
+    double gamma = 0.6;
 
 
+    bool show_graph = true;
     if(argc >= 4) {
         input_depth = atoi(argv[3]);
     }
@@ -72,33 +70,33 @@ int main(int argc, char *argv[])
         batch_size = atoi(argv[4]);
     }
     if(argc >= 6) {
-        lr_rate = atof(argv[5]);
+        show_graph = atoi(argv[5]) == 1 ? true : false;
     }
     if(argc >= 7) {
-        momentum = atof(argv[6]);
+        lr_rate = atof(argv[6]);
     }
     if(argc >= 8) {
-        weight_decay = atof(argv[7]);
+        momentum = atof(argv[7]);
+    }
+    if(argc >= 9) {
+        weight_decay = atof(argv[8]);
     }
 
     int test_iters = (104 - input_depth) / batch_size;
     int train_iters = 5000;
-    int iters = 500;
-    int step_size = 100000000;
+    int iters = 800;
+    int step_size = 50000;
     //data Blobs
     vector<Blob<double>*>       input_data0,
                                 fc0_top,
                                 fc1_top,
-                                fc2_top,
-                                fc3_top,
-                                fc4_top,
                                 loss_top;
     //create Net
     cout<<"create Net"<<endl;
     Net<double> pred_net;
     pred_net.AddLayer(new DataLayer<double>(input_depth, output_depth, batch_size, input_train_path.toStdString(), input_test_path.toStdString(), "input", input_data0));
     pred_net.AddLayer(new FullyConnectedLayer<double>(10, bipolSigmoid, "fc0", input_data0, fc0_top));
-    pred_net.AddLayer(new FullyConnectedLayer<double>(output_depth, bipolSigmoid, "fc2", fc0_top, fc1_top));
+    pred_net.AddLayer(new FullyConnectedLayer<double>(1, bipolSigmoid, "fc2", fc0_top, fc1_top));
 
     vector<Blob<double>*> &net_top = fc1_top;
     net_top.push_back(input_data0[1]);
@@ -119,7 +117,7 @@ int main(int argc, char *argv[])
 
     cout<<"lr_rate "<<lr_rate<<";"<<endl;
     cout<<"weight_decay "<<weight_decay<<";"<<endl;
-    cout<<"momentume "<<momentum<<";"<<endl;
+    cout<<"momentum "<<momentum<<";"<<endl;
     cout<<"gamma "<<gamma<<";"<<endl;
     cout<<"test_iters "<<test_iters<<";"<<endl;
     cout<<"train_iters "<<train_iters<<";"<<endl;
@@ -189,39 +187,42 @@ int main(int argc, char *argv[])
         }
     }
 
-    QApplication a(argc, argv);
 
+    if(show_graph) {
 
-    //data predicted
-    QChart *chart = new QChart();
-    chart->legend()->hide();
-    chart->addSeries(series);
-    chart->addSeries(series2);
-    chart->createDefaultAxes();
-    chart->setTitle("Predicted data - blue, true data - red");
+        QApplication a(argc, argv);
 
-    QChartView *chartView = new QChartView(chart);
-    chartView->setRenderHint(QPainter::Antialiasing);
+        //data predicted
+        QChart *chart = new QChart();
+        chart->legend()->hide();
+        chart->addSeries(series);
+        chart->addSeries(series2);
+        chart->createDefaultAxes();
+        chart->setTitle("Predicted data - blue, true data - red. Input depth = " + QString::number(input_depth));
 
-    QMainWindow window;
-    window.setCentralWidget(chartView);
-    window.resize(1000, 500);
-    window.show();
+        QChartView *chartView = new QChartView(chart);
+        chartView->setRenderHint(QPainter::Antialiasing);
 
-    //loss
-    QChart *chart2 = new QChart();
-    chart2->legend()->hide();
-    chart2->addSeries(loss_series);
-    chart2->createDefaultAxes();
-    chart2->setTitle("Loss");
+        QMainWindow window;
+        window.setCentralWidget(chartView);
+        window.resize(1000, 500);
+        window.show();
 
-    QChartView *chartView2 = new QChartView(chart2);
-    chartView2->setRenderHint(QPainter::Antialiasing);
+        //loss
+        QChart *chart2 = new QChart();
+        chart2->legend()->hide();
+        chart2->addSeries(loss_series);
+        chart2->createDefaultAxes();
+        chart2->setTitle("Loss");
 
-    QMainWindow window2;
-    window2.setCentralWidget(chartView2);
-    window2.resize(1000, 500);
-    window2.show();
+        QChartView *chartView2 = new QChartView(chart2);
+        chartView2->setRenderHint(QPainter::Antialiasing);
 
-    return a.exec();
+        QMainWindow window2;
+        window2.setCentralWidget(chartView2);
+        window2.resize(1000, 500);
+        window2.show();
+        return a.exec();
+    }
+    return 0;
 }
