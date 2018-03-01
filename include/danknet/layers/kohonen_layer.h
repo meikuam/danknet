@@ -25,8 +25,6 @@ private:
         height_,
         depth_;
 
-    Blob<Dtype>*         weights_diff_;
-
     std::default_random_engine generator;
     std::normal_distribution<Dtype> distribution;
 };

@@ -90,32 +90,34 @@ TextDataLayer<Dtype>::Forward() {
         switch (this->phase_) {
         case TRAIN:
         {
-            if(current_train_item_ + data_depth_ >= (train_data_.size() + data_depth_)) {
+            if(current_train_item_ >= (train_data_.size() / data_depth_)) {
                 current_train_item_ = 0;
+                current_train_label_ = 0;
             }
             for(int d = 0; d < data_depth_; d++) {
-                *top_data->data(batch, 0, 0, d) = train_data_[current_train_item_ + d];
+                *top_data->data(batch, 0, 0, d) = train_data_[current_train_item_ * data_depth_ + d];
             }
             for(int l = 0; l < label_depth_; l++) {
-                *top_label->data(batch, 0, 0, l) = train_labels_[current_train_label_ + label_depth_ + l];
+                *top_label->data(batch, 0, 0, l) = train_labels_[current_train_label_ * label_depth_ + l];
             }
-            current_train_item_ += data_depth_;
-            current_train_label_ += label_depth_;
+            current_train_item_++;
+            current_train_label_++;
             break;
         }
         case TEST:
         {
-            if(current_test_item_ + data_depth_ >= (test_data_.size() / data_depth_)) {
+            if(current_test_item_ >= (test_data_.size() / data_depth_)) {
                 current_test_item_ = 0;
+                current_test_label_ = 0;
             }
             for(int d = 0; d < data_depth_; d++) {
-                *top_data->data(batch, 0, 0, d) = test_data_[current_test_item_ + d];
+                *top_data->data(batch, 0, 0, d) = test_data_[current_test_item_ * data_depth_ + d];
             }
             for(int l = 0; l < label_depth_; l++) {
-                *top_label->data(batch, 0, 0, l) = test_labels_[current_test_label_ + label_depth_ + l];
+                *top_label->data(batch, 0, 0, l) = test_labels_[current_test_label_ * label_depth_ + l];
             }
-            current_test_item_ += data_depth_;
-            current_test_label_ += label_depth_;
+            current_test_item_++;
+            current_test_label_++;
             break;
         }
         }

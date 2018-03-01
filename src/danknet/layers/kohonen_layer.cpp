@@ -2,12 +2,14 @@
 
 namespace danknet {
 
+
+
 template<typename Dtype>
 KohonenLayer<Dtype>::KohonenLayer(int width, int height,
                                   string name,
                                   vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>& top)
     : Layer<Dtype>(name, bottom, top),
-      distribution(0, 1),
+      distribution(0.5, 0.5),
       generator(std::chrono::system_clock::now().time_since_epoch().count())
 {
     width_ = width;
@@ -22,10 +24,10 @@ KohonenLayer<Dtype>::KohonenLayer(int width, int height,
     Shape bottom_shape = bottom[0]->shape();
     depth_ = bottom_shape.depth();
     this->weights_ = new Blob<Dtype>(this->name_ + "_weights", Shape(width_, height_, depth_, 1));
-    this->weights_diff_ = new Blob<Dtype>(this->name_ + "_weights_diff", Shape(width_, height_, depth_, 1));
 
     //-------------create top vector--------------
     this->top_.push_back(new Blob<Dtype>(this->name_ + "_data", Shape(1, 1, depth_, this->bottom_[0]->shape().batch())));
+    this->top_.push_back(this->weights_);
     top = this->top_;
     initWeights();
 }
@@ -43,11 +45,15 @@ KohonenLayer<Dtype>::Forward() {
         //---------------clear batches----------------
         top->setToZero();
         //-------------------batch--------------------
-        for(int batch = 0; batch < bottom->batch_size(); batch++) {
-            Data3d<Dtype>* bottom_data = bottom->Data(batch);
-            Data3d<Dtype>* top_data = top->Data(batch);
-            Shape bottom_shape = bottom_data->shape();
-            Shape top_shape = top_data->shape();
+        if(bottom->batch_size() == 0) {
+
+        } else {
+            for(int batch = 0; batch < bottom->batch_size(); batch++) {
+                Data3d<Dtype>* bottom_data = bottom->Data(batch);
+                Data3d<Dtype>* top_data = top->Data(batch);
+                Shape bottom_shape = bottom_data->shape();
+                Shape top_shape = top_data->shape();
+            }
         }
         break;
     }
@@ -86,7 +92,7 @@ KohonenLayer<Dtype>::initWeights() {
        for(int c = 0; c < weights_shape.depth(); c++) {
            for(int x = 0; x < weights_shape.width(); x++) {
                for(int y = 0; y < weights_shape.height(); y++) {
-                   *weights->data(k, x, y, c) = (Dtype)(distribution(generator)) * 0.01;
+                   *weights->data(k, x, y, c) = (Dtype)(distribution(generator));
                }
            }
        }

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <fstream>
+#include <chrono>
 
 #include "danknet.h"
 
@@ -28,7 +29,7 @@ int main(int argc, char *argv[])
     int batch_size = 5;
     int test_iters = 10;
     int train_iters = 10;
-    int iters = 10;
+    int iters = 1;
 
 
     int data_depth = 8;
@@ -49,15 +50,23 @@ int main(int argc, char *argv[])
 
     cout<<"---------------------Forward----------------------"<<endl;
 
+
     for(int k = 0; k < iters; k++) {
         cout<<"phase_: TRAIN"<<endl;
         net.phase(TRAIN);
+
+
+        auto start_time = std::chrono::system_clock::now();
         for(int i = 0; i < train_iters; i++) {
             net.Forward();
             for(int b = 0; b < batch_size; b++) {
             }
 //            net.Backward();
         }
+        auto end_time = std::chrono::system_clock::now();
+
+        chrono::duration<double> diff_time = end_time - start_time;
+        std::cout<<"time: "<<to_string(diff_time.count())<<endl;
         net.phase(TEST);
         cout<<"phase_: TEST"<<endl;
         for(int i = 0; i < test_iters; i++) {
